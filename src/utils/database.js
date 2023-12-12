@@ -39,12 +39,9 @@ export function initDB(options = {}) {
       console.log("Clipboard表已经存在");
     }
   }
-
-
-  const cacheDb = new Database(join(app.getPath('userData'), '/data/db', `cache.db`), options);
   try {
     console.log('created cache');
-    cacheDb.exec(
+    db.exec(
         `CREATE TABLE IF NOT EXISTS Cache (
         id    integer primary	 key AUTOINCREMENT,
         hash varchar(32),
@@ -61,8 +58,7 @@ export function initDB(options = {}) {
       console.log("Cache表已经存在");
     }
   }
-
-  global.cacheDb = cacheDb;
+  global.db = db;
 }
 
 // 插入数据
@@ -84,7 +80,7 @@ export function insertDB(data) {
 
 // 插入缓存数据
 export function insertCache(data) {
-  const insert = global.cacheDb.prepare(
+  const insert = global.db.prepare(
     `INSERT INTO Clipboard ( hash,drive, cache, time) ` +
     "VALUES ( @hash,@drive, @cache,  @time)"
   );
