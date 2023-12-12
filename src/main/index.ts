@@ -1,4 +1,4 @@
-import {app, shell, BrowserWindow, ipcMain, dialog,  Menu, Tray, BrowserView, protocol, net } from 'electron'
+import {app, shell, BrowserWindow, ipcMain, dialog,  Menu, Tray, BrowserView, protocol, net, globalShortcut } from 'electron'
 import {join} from 'path'
 import request from 'request'
 import fs from 'fs'
@@ -10,7 +10,7 @@ import {getElectronVersion} from './main'
 import {downloadFileToFolder, downloadFileToFolderNode} from '../utils/index.js';
 
 
-import { getClipboardFiles } from './clipboard.js';
+import {getClipboardFiles, getClipboardList, openFile, setCurrentClipboard} from './clipboard.js';
 require('@electron/remote/main').initialize();
 
 
@@ -51,6 +51,13 @@ function createWindow() {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
+
+  globalShortcut.register('CommandOrControl+Shift+L', () => {
+    mainWindow.toggleDevTools()
+  })
+
+
+
   global.mainId =  mainWindow.id;
   return mainWindow
 
@@ -87,6 +94,12 @@ if (!gotTheLock) {
 // Some APIs can only be used after this event occurs.
   app.whenReady().then(() => {
 
+    myWindow = createWindow();
+    require("@electron/remote/main").enable(myWindow.webContents);
+    // 全局变量
+    global.mainWindow = myWindow;
+    global.app = app;
+
     // 注册自定义协议
     regMyProtocol();
     // Set app user model id for windows
@@ -97,15 +110,9 @@ if (!gotTheLock) {
     // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window)
-
       // require("@electron/remote/main").enable(myWindow.webContents);
     })
 
-    myWindow = createWindow();
-    require("@electron/remote/main").enable(myWindow.webContents);
-    // 全局变量
-    global.mainWindow = myWindow;
-    global.app = app;
 
     app.on('activate', function () {
       // On macOS it's common to re-create a window in the app when the
@@ -113,27 +120,34 @@ if (!gotTheLock) {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
 
-    trayInit(app);
 
 
+    ipcMain.handle('getClipboardFiles', getClipboardFiles)
+    // 打开文件
+    ipcMain.handle('openFile', openFile)
+    //获取剪切板列表
+    ipcMain.handle('getClipboardList', getClipboardList);
 
-    ipcMain.on('readDir', readDir);
+    // 设置双击项为当前剪切项
+    ipcMain.handle('setCurrentClipboard', setCurrentClipboard)
 
-    ipcMain.handle('getElectronVersion', getElectronVersion)
-
-    ipcMain.handle('getClipboardFiles', () => {
-      getClipboardFiles()
-    })
-
+    trayInit();
 
 
   })
+
+
+  app.on('before-quit', () => {
+    global.db && global.db.close();
+  });
+
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+
       app.quit()
     }
   })
@@ -150,7 +164,6 @@ function regMyProtocol() {
   // 注册协议 cdm-clipboard 协议名字无所谓 自定义即可
 
   protocol.handle('cdm-clipboard', (request) => {
-    console.log(request.url, 157);
    return net.fetch('file://' + request.url.slice('cdm-clipboard://'.length))
   })
 

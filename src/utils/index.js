@@ -96,5 +96,15 @@ export function getFileHash(stream) {
   return md5;
 }
 
+// 计算字符串hash值
+export function getHash(string) {
+
+  const hash = crypto.createHash('md5');
+  hash.update(string, 'utf8');
+  const md5 = hash.digest('hex');
+  console.log(md5, 'md5');
+  return md5;
+}
+
 
 

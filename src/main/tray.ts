@@ -3,7 +3,8 @@ import   {Menu, Tray } from 'electron'
 
 
 
-export function trayInit(app) {
+export function trayInit() {
+
     let tray: any = null;
     const iconPath =  'resources/icon.ico';
     tray = new Tray(iconPath);
@@ -12,7 +13,7 @@ export function trayInit(app) {
             label: '退出',
             click: function () {
                 // 退出
-                app.quit();
+                global.app.quit();
             }
         }
     ]);
