@@ -24,6 +24,7 @@ export function initDB(options = {}) {
         rtf  text,
         img text,
         file varchar,
+        cache varchar,
         hash varchar(32),
         syncTime varchar,
         syncStatus int,
@@ -34,22 +35,58 @@ export function initDB(options = {}) {
 
   } catch (error) {
     console.log(error);
-    if (error.message == "table Photo already exists") {
+    if (error.message == "table Clipboard already exists") {
       console.log("Clipboard表已经存在");
     }
   }
 
 
+  const cacheDb = new Database(join(app.getPath('userData'), '/data/db', `cache.db`), options);
+  try {
+    console.log('created cache');
+    cacheDb.exec(
+        `CREATE TABLE IF NOT EXISTS Cache (
+        id    integer primary	 key AUTOINCREMENT,
+        hash varchar(32),
+        drive varchar,
+        cache varchar,
+        time varchar)`
+      );
 
 
-  global.db = db;
+
+  } catch (error) {
+    console.log(error);
+    if (error.message == "table Cache already exists") {
+      console.log("Cache表已经存在");
+    }
+  }
+
+  global.cacheDb = cacheDb;
 }
 
 // 插入数据
-export function insertDB(table, data) {
+export function insertDB(data) {
   const insert = global.db.prepare(
-    `INSERT INTO ${table} (text, html, rtf, img, file, hash, syncTime, syncStatus, time) ` +
-    "VALUES (@text, @html, @rtf, @img, @file, @hash, @syncTime, @syncStatus, @time)"
+    `INSERT INTO Clipboard (text, html, rtf, img, file, cache, hash, syncTime, syncStatus, time) ` +
+    "VALUES (@text, @html, @rtf, @img, @file, @cache, @hash, @syncTime, @syncStatus, @time)"
+  );
+  return insert.run(data);
+
+  // const insertMany = this.db.transaction((cats) => {
+  //   for (const cat of cats) {
+  //     insert.run(cat);
+  //   }
+  // });
+  //insertMany(arr_photo_path);
+
+}
+
+// 插入缓存数据
+export function insertCache(data) {
+  const insert = global.cacheDb.prepare(
+    `INSERT INTO Clipboard ( hash,drive, cache, time) ` +
+    "VALUES ( @hash,@drive, @cache,  @time)"
   );
   return insert.run(data);
 
@@ -115,11 +152,6 @@ export function deleteDB(table, hash) {
 }
 
 
-global.getDB = getDB;
-global.getDBList = getDbList;
-global.insertDB = insertDB;
-global.updateDB =  updateDB;
-global.deleteDB = deleteDB;
 
 
 

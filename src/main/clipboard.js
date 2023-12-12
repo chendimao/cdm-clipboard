@@ -1,5 +1,6 @@
-import {clipboard, ipcMain, BrowserWindow, BrowserView, shell} from 'electron';
+import {clipboard, ipcMain, BrowserWindow, BrowserView, shell, app} from 'electron';
 import {
+  copyFileToCache,
   downloadFileToFolder,
   downloadFileToFolderNode,
   getDownLoadUrl,
@@ -7,7 +8,7 @@ import {
   getRandomHash
 } from '../utils/index';
 import fs from "fs";
-import {join} from "path";
+import {join, basename} from "path";
 import {getDB, getDbList, initDB, insertDB, updateDB} from "../utils/database";
 import logger from '../utils/logs.js';
 const clipboardListener = require('clipboard-event');
@@ -58,8 +59,25 @@ export function getClipboardFiles () {
       //文件列表转为字符串存入数据库
       params.file = betterClipboard.readFilePathList().join(',')
       hash = getHash(params.file);
+
+      // 将文件写入缓存
+
+
+      let cacheList = []
+      betterClipboard.readFilePathList().forEach(item => {
+          copyFileToCache(item, app.getPath('userData') + '\\data\\file\\' + basename(item))
+          cacheList.push(app.getPath('userData') + '\\data\\file\\' + basename(item));
+      })
+      params.cache = cacheList.join(',');
+
       // params.file = clipboard.readBuffer('FileNameW').toString('ucs2').replace(RegExp(String.fromCharCode(0), 'g'), '')
     }
+
+    // 生成设备唯一id，存储本设备缓存路径
+    const machineId = require('node-machine-id');
+    const id = machineId.machineIdSync({original: true});
+    console.log(id, 79);
+
   }
 
 
@@ -72,7 +90,7 @@ export function getClipboardFiles () {
 
   // 如果不存在则插入数据
   if (!getDB('Clipboard', hash)) {
-    const res = insertDB('Clipboard', {...params, hash, syncTime: new Date().getTime(), syncStatus: 0, time: new Date().getTime()})
+    const res = insertDB( {...params, hash, syncTime: new Date().getTime(), syncStatus: 0, time: new Date().getTime()})
     BrowserWindow.fromId(global.mainId).webContents.send('setClipboard', params)
   } else {
     const update = updateDB('Clipboard', {time: new Date().getTime()}, hash);

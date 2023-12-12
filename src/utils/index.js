@@ -51,6 +51,20 @@ export function  getDownLoadUrl(fileName, fileType, data) {
 
 }
 
+// 将文件复制到缓存目录
+export function copyFileToCache(oldPath, newPath) {
+  console.log(oldPath, newPath, 56);
+  if (!fs.existsSync(app.getPath('userData') + '/data')) {
+    fs.mkdirSync(app.getPath('userData') + '/data');
+  }
+
+  if (!fs.existsSync(app.getPath('userData') + '/data/file')) {
+    fs.mkdirSync(app.getPath('userData') + '/data/file');
+  }
+  return fs.copyFileSync(oldPath, newPath);
+
+}
+
 
 /**
  *  description: 下载文件到指定目录
