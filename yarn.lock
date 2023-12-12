@@ -2119,7 +2119,7 @@
   dependencies:
     "assert-plus" "^1.0.0"
 
-"dayjs@^1.10.5":
+"dayjs@^1.10.5", "dayjs@^1.11.10":
   "integrity" "sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ=="
   "resolved" "https://registry.npmmirror.com/dayjs/-/dayjs-1.11.10.tgz"
   "version" "1.11.10"
@@ -2357,6 +2357,11 @@
     "read-config-file" "6.3.2"
     "simple-update-notifier" "2.0.0"
     "yargs" "^17.6.2"
+
+"electron-log@^5.0.1":
+  "integrity" "sha512-x4wnwHg00h/onWQgjmvcdLV7Mrd9TZjxNs8LmXVpqvANDf4FsSs5wLlzOykWLcaFzR3+5hdVEQ8ctmrUxgHlPA=="
+  "resolved" "https://registry.npmmirror.com/electron-log/-/electron-log-5.0.1.tgz"
+  "version" "5.0.1"
 
 "electron-publish@24.8.1":
   "integrity" "sha512-IFNXkdxMVzUdweoLJNXSupXkqnvgbrn3J4vognuOY06LaS/m0xvfFYIf+o1CM8if6DuWYWoQFKPcWZt/FUjZPw=="

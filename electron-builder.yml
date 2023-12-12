@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: clipboard
+productName: CDM云同步剪切板
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: clipboard
+  executableName: cdm-clipboard
   icon: resources/icon.png
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
