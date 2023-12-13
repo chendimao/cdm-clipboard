@@ -1,6 +1,8 @@
 
 //import  remote from '@electron/remote';
 
+import machineId from "node-machine-id";
+
 /**
  *  description: 下载文件到指定目录
  *  param {string} url 文件下载链接
@@ -118,6 +120,14 @@ export function getHash(string) {
   const md5 = hash.digest('hex');
   console.log(md5, 'md5');
   return md5;
+}
+
+// 生成设备唯一id
+export function getDeviceId() {
+  // 生成设备唯一id，存储本设备缓存路径
+  const machineId = require('node-machine-id');
+  return machineId.machineIdSync({original: true});
+
 }
 
 

@@ -7,10 +7,10 @@ import icon from '../../resources/icon.png?asset'
 import {readDir} from "./readDir";
 import {trayInit} from "./tray";
 import {getElectronVersion} from './main'
-import {downloadFileToFolder, downloadFileToFolderNode} from '../utils/index.js';
+import {downloadFileToFolder, downloadFileToFolderNode, getDeviceId} from '../utils/index.js';
 
 
-import {getClipboardFiles, getClipboardList, openFile, setCurrentClipboard} from './clipboard.js';
+import {deleteClipboard, getClipboardFiles, getClipboardList, openFile, setCurrentClipboard} from './clipboard.js';
 require('@electron/remote/main').initialize();
 
 
@@ -59,6 +59,7 @@ function createWindow() {
 
 
   global.mainId =  mainWindow.id;
+
   return mainWindow
 
 
@@ -99,7 +100,7 @@ if (!gotTheLock) {
     // 全局变量
     global.mainWindow = myWindow;
     global.app = app;
-
+    global.driveId = getDeviceId();
     // 注册自定义协议
     regMyProtocol();
     // Set app user model id for windows
@@ -130,6 +131,10 @@ if (!gotTheLock) {
 
     // 设置双击项为当前剪切项
     ipcMain.handle('setCurrentClipboard', setCurrentClipboard)
+
+    // 删除一项剪切板
+    ipcMain.handle('deleteClipboard', deleteClipboard)
+
 
     trayInit();
 

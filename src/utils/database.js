@@ -22,9 +22,6 @@ export function initDB(options = {}) {
         text  text,
         html text,
         rtf  text,
-        img text,
-        file varchar,
-        cache varchar,
         hash varchar(32),
         syncTime varchar,
         syncStatus int,
@@ -46,7 +43,9 @@ export function initDB(options = {}) {
         id    integer primary	 key AUTOINCREMENT,
         hash varchar(32),
         drive varchar,
-        cache varchar,
+          img varchar,
+          file varchar,
+          cache varchar,
         syncTime varchar,
         syncStatus int,
         time varchar)`
@@ -66,8 +65,8 @@ export function initDB(options = {}) {
 // 插入数据
 export function insertDB(data) {
   const insert = global.db.prepare(
-    `INSERT INTO Clipboard (text, html, rtf, img, file, cache, hash, syncTime, syncStatus, time) ` +
-    "VALUES (@text, @html, @rtf, @img, @file, @cache, @hash, @syncTime, @syncStatus, @time)"
+    `INSERT INTO Clipboard (text, html, rtf,  hash, syncTime, syncStatus, time) ` +
+    "VALUES (@text, @html, @rtf,  @hash, @syncTime, @syncStatus, @time)"
   );
   return insert.run(data);
 
@@ -99,26 +98,34 @@ export function insertCache(data) {
 
 //  查询hash数据
 export function getDB(table, hash) {
+
+  // 左连接查询cache表
+  const sqlJoin= '  LEFT OUTER JOIN Cache ON Cache.hash = ' + table + '.hash ';
+
   const stmt = global.db.prepare(
-    `select * from ${table} where hash='${hash}';`
+    `select *, ${table}.hash from ${table} ${sqlJoin} where ${table}.hash='${hash}';`
   );
   return stmt.get();
 }
 
 //  查询数据集合
-export function getDbList(table, data) {
+export function getDbList(table, data, opt = 'ORDER BY time DESC') {
+  const keys = Object.keys(data);
+  let sqlParams = '';
+  // 左连接查询cache表
+  const sqlJoin= '  LEFT OUTER JOIN Cache ON Cache.hash = ' + table + '.hash ';
+
+  //拼接查询条件
+  for (let i = 0; i < keys.length; i++) {
+    sqlParams += ` ${table}.${keys[i]} = ${data[keys[i]]} `;
+    if (i != keys.length - 1) sqlParams += ' AND ';
+  }
 
 
-  let dataStr = '';
-  Object.keys(data).forEach(key => {
-    dataStr += `${key}` +   '=' + `'${data[key]}'` +   ','
+  const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
 
-  })
-
-  dataStr = dataStr.slice(0, -1);
-  const stmt = global.db.prepare(
-    `select * from ${table} where ${dataStr} ORDER BY time DESC;`
-  );
+ // console.log(sql);
+  const stmt = global.db.prepare(sql);
   //console.log(stmt.all());
   return stmt.all();
 
@@ -147,6 +154,17 @@ export function deleteDB(table, hash) {
     `delete from ${table} where hash=?;`
   );
   return deleteData.run(hash);
+}
+
+// 执行sql
+export function execQuerySql(sql) {
+   const stmt = global.db.prepare(sql);
+  return stmt.all();
+}
+export function execUpdateSql(sql) {
+  console.log(sql);
+   const stmt = global.db.prepare(sql);
+  return stmt.run();
 }
 
 

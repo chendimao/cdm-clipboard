@@ -9,9 +9,9 @@ import 'ant-design-vue/dist/antd.css';
 import router from './router';
 const app = createApp(App);
 app.config.productionTip = false;
+import { directive } from 'vue3-menus';
 
-
-
+app.directive('menus', directive); // 只注册指令
 
 app.use(Antd);
 app.use(router);

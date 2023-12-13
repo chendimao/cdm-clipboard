@@ -5621,6 +5621,11 @@ vue@^3.0.0, "vue@^3.0.0-0 || ^2.6.0", vue@^3.2.0, vue@^3.2.25, vue@^3.3.4, vue@>
     "@vue/server-renderer" "3.3.9"
     "@vue/shared" "3.3.9"
 
+vue3-menus@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.npmmirror.com/vue3-menus/-/vue3-menus-1.1.2.tgz"
+  integrity sha512-MoX87TH25fbKmmE8PwC+c2kJOSGJheP4pBR2we0RkOrfUDQg7sK+akAZSmQU8o+7dF+xVF2NfKPhoVHOhlX9wQ==
+
 warning@^4.0.0:
   version "4.0.3"
   resolved "https://registry.npmmirror.com/warning/-/warning-4.0.3.tgz"
