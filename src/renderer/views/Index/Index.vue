@@ -106,7 +106,7 @@ function setCurrentClipboard(hash) {
         <a-list bordered :data-source="list">
           <template #renderItem="{ item, index }">
 
-            <a-tooltip v-if="item.text" placement="top" :title="item.text">
+            <a-tooltip v-if="item.text" placement="top" :title="item.text" mouseEnterDelay="1">
               <a-list-item  class="text-truncate" @dblclick="setCurrentClipboard(item.hash)">
                 <div  class="text-truncate select-none">
                   <span class="text-12px text-[gray] mr-5 text-right">{{dayjs(item.time).fromNow()}}</span>

@@ -47,6 +47,8 @@ export function initDB(options = {}) {
         hash varchar(32),
         drive varchar,
         cache varchar,
+        syncTime varchar,
+        syncStatus int,
         time varchar)`
       );
 
@@ -81,8 +83,8 @@ export function insertDB(data) {
 // 插入缓存数据
 export function insertCache(data) {
   const insert = global.db.prepare(
-    `INSERT INTO Clipboard ( hash,drive, cache, time) ` +
-    "VALUES ( @hash,@drive, @cache,  @time)"
+    `INSERT INTO Cache ( hash,drive, cache,  syncTime, syncStatus,time) ` +
+    "VALUES ( @hash,@drive, @cache, @syncTime, @syncStatus, @time)"
   );
   return insert.run(data);
 
