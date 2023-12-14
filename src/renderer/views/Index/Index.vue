@@ -2,78 +2,52 @@
 
 <template>
   <div class=" w-100% h-610px">
+<!--    <a-input-search-->
+<!--      v-model:value="query"-->
+<!--      placeholder="input search text"-->
+<!--      style="width: 200px"-->
+<!--      @search="getData"-->
+<!--    />-->
+    <vxe-table
+      show-overflow
+      height="600"
+      class="mytable-scrollbar"
+      :show-header="false"
+      :row-config="{isHover: true, isCurrent: true,}"
+      :data="list"
+      :menu-config="menuConfig"
+      @menu-click="contextMenuClickEvent"
+      :scroll-y="{enabled: true}">
+      <vxe-column type="seq" width="50"></vxe-column>
+      <vxe-column field="name" title="Name" width="340"   show-overflow="title" class="h-100px">
 
+        <template #default="{row, index}">
 
+            <div v-if="row.text" class="text-black text-truncate select-none" @click.ctrl="showDetail(row)" @dblclick="setCurrentClipboard(row.hash)">
+              <div class="" >{{ row.text }}</div>
+            </div>
+            <div v-else-if="row.img" class="w-100%  "  @click.ctrl.prevent="openFile(row.img)" @dblclick="setCurrentClipboard(row.hash)">
+              <div class=" w-90% text-left flex items-center">
+                <a-image
+                  class="h-48px p-2"
+                  :src="'cdm-clipboard:///' + row.img"
+                  :alt="row.img"
+                />
+              </div>
+            </div>
+            <div v-else-if="row.file" class="w-100%  "   @dblclick="setCurrentClipboard(row.hash)">
 
-<!--    <a-button @click="getData">重新获取数据</a-button>-->
-    <a-tabs v-model:activeKey="tabKey">
-      <a-tab-pane key="" tab="全部">
-        <a-list bordered :data-source="list" class="list h-550px overflow-auto">
-          <template #renderItem="{ item, index }">
+              <div v-if="row.file.split(',').length > 1" class=" cursor-pointer hover:decoration-underline text-12px" @click="showFileDetail(row.file.split(','))">
+                <span class="text-[dodgerblue]">【{{row.file.split(',')[0].substring(row.file.split(',')[0].lastIndexOf('\\') + 1,row.file.split(',')[0].length )}}】</span>
+                等{{row.file.split(',').length}}个文件
+              </div>
+              <div v-else  class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  text-12px " v-for="i in row.file.split(',')"  @click="openFile(i)">{{ i }}</div>
+            </div>
 
-            <a-tooltip v-if="item.text" placement="top" :title="item.text" :mouseEnterDelay="1.5">
-              <a-list-item  class="text-truncate hover:bg-[#eee] " :data="item" v-menus:right="menus" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item.hash)">
-                <div  class="text-truncate select-none">
-                  <span class="text-12px text-[gray] mr-5 text-right ">{{index + 1}}</span>
-                  <span >{{ item.text }}</span>
+        </template>
+      </vxe-column>
 
-                </div>
-              </a-list-item>
-            </a-tooltip>
-
-            <a-tooltip v-if="item.img && item.img.length > 0" placement="top" :title="item.img" :mouseEnterDelay="1.5">
-
-            <a-list-item v-if="item.img" @click.ctrl="openFile(item.img)" @dblclick="setCurrentClipboard(item.hash)">
-              <span class="text-12px text-[gray] mr-5 text-right">{{index + 1}}</span>
-              <span class="inline-block w-90% text-left">
-                <img :src="'cdm-clipboard:///' + item.img" alt="" class="w-auto max-h-100px" />
-              </span>
-            </a-list-item>
-            </a-tooltip>
-            <a-tooltip v-if="item.file && item.file.length > 0" placement="top" :title="item.file.split(',')" :mouseEnterDelay="1.5">
-
-              <a-list-item class="" v-if="item.file && item.file.length > 0" @dblclick="setCurrentClipboard(item.hash)">
-                <span class="text-12px text-[gray] mr-5 text-right">{{index + 1}}</span>
-                <div   class="text-[dodgerblue] text-left text-truncate cursor-pointer hover:decoration-underline w-90% " v-for="i in item.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
-              </a-list-item>
-            </a-tooltip>
-
-          </template>
-        </a-list>
-      </a-tab-pane>
-      <a-tab-pane key="text" tab="文本">
-        <a-list bordered :data-source="textList">
-          <template #renderItem="{ item }">
-            <a-tooltip v-if="item.text"  placement="top" :title="item.text">
-              <a-list-item v-if="item.text" >
-                <div  class="text-truncate">{{ item.text }}</div>
-              </a-list-item>
-            </a-tooltip>
-
-          </template>
-        </a-list>
-      </a-tab-pane>
-      <a-tab-pane key="img" tab="图片" force-render>
-        <a-list bordered :data-source="imgList">
-          <template #renderItem="{ item }">
-            <a-list-item v-if="item.img" @click.ctrl="openFile(item.img)" >
-              <img :src="'cdm-clipboard:///' + item.img" alt="" class="w-80% text-center" />
-            </a-list-item>
-          </template>
-        </a-list>
-      </a-tab-pane>
-      <a-tab-pane key="file" tab="文件">
-        <a-list bordered :data-source="fileList">
-          <template #renderItem="{ item }">
-            <a-tooltip v-if="item.file && item.file.length > 0" placement="top" :title="item.file.split(',')">
-              <a-list-item v-if="item.file && item.file.length > 0">
-                <div   class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  " v-for="i in item.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
-              </a-list-item>
-            </a-tooltip>
-          </template>
-        </a-list>
-      </a-tab-pane>
-    </a-tabs>
+    </vxe-table>
   </div>
 </template>
 
@@ -87,7 +61,6 @@ import { getGlobal } from '@electron/remote/'
 import remote from '@electron/remote/'
 import {message, Modal} from 'ant-design-vue'
 import * as dayjs from "dayjs";
-import { directive, menusEvent, Vue3Menus } from 'vue3-menus';
 
 
 require('dayjs/locale/zh-cn');
@@ -123,40 +96,95 @@ const fileList = computed(() => {
   return list.value.filter((item) => item.file)
 })
 
+const query = ref('');
 
-const menus = shallowRef({
-  menus: [
+watch(() => query, (data) => {
+  console.log(data);
+}, {immediate: true})
 
-    {
-      label: "删除",
-      click: (menu, arg) => {
-        console.log(menu, arg)
-        ipcRenderer.invoke('deleteClipboard', arg.data.hash).then(res => {
-          console.log(res);
-          if (res) {
-            setTimeout(() => {
-              let listLen =  list.value.length;
-              for (let i = 0; i < listLen; i++) {
-                if (list.value[i].hash == arg.data.hash) {
-                  console.log(arg.data.hash);
-                  list.value.splice(i, 1);
-                  break;
-                }
-              }
-            }, 100);
 
-          }
+const menuList = ref([
+  {code: 'refresh', name: '刷新',   disabled: false},
+  {code: 'copy', name: '复制',   disabled: false},
+  {code: 'remove', name: '删除', disabled: false},
 
-          return res;
-        });
+]);
 
-      }
+
+
+const menuConfig = ref({
+  body: {
+    options: [
+      menuList.value
+    ]
+  },
+
+  visibleMethod (data) {
+    console.log(data);
+    if (data.row.img) {
+      data.options[0] = [
+        {code: 'refresh', name: '刷新',   disabled: false},
+        {code: 'copy', name: '复制',   disabled: false},
+        {code: 'openImgPath', name: '打开图片目录',   disabled: false},
+        {code: 'remove', name: '删除', disabled: false},
+
+      ]
+    } else if (data.row.file) {
+      data.options[0] = [
+        {code: 'refresh', name: '刷新',   disabled: false},
+        {code: 'copy', name: '复制',   disabled: false},
+        {code: 'openFilePath', name: '打开文件目录',   disabled: false},
+        {code: 'openCachePath', name: '打开缓存目录',   disabled: false},
+        {code: 'remove', name: '删除', disabled: false},
+
+      ]
+    } else {
+      data.options[0] = [
+        {code: 'refresh', name: '刷新',   disabled: false},
+        {code: 'copy', name: '复制',   disabled: false},
+        {code: 'remove', name: '删除', disabled: false},
+
+      ]
     }
-  ],
-  event: 'contextmenu'
-})
+    return true
+  }
+
+});
 
 
+
+function contextMenuClickEvent(ev) {
+
+  const methods = {
+    'refresh': () => {
+      query.value = '';
+      getData(query.value);
+      message.success('刷新成功');
+    },
+    'remove': () => {
+      ipcRenderer.invoke('deleteClipboard', ev.row.hash).then( res => {
+
+         if (res && deleteData(ev.row.hash)) message.success('删除成功');
+
+      });
+    },
+    'copy': () => {
+      setCurrentClipboard(ev.row.hash)
+      message.success('复制成功');
+    },
+    'openFilePath': () => {
+      openPath(ev.row.file.split(',')[0]);
+    },
+    'openCachePath': () => {
+      openPath(ev.row.cache.split(',')[0]);
+    },
+    'openImgPath': () => {
+      openPath(ev.row.img.replaceAll('/','\\'));
+    }
+  }
+  methods[ev.menu.code]();
+
+}
 
 function toHome() {
   router.push('/home')
@@ -198,14 +226,22 @@ function getClipboardList() {
 }
 
 
-// 双击打开文件
+// 打开文件
 function openFile(item) {
   console.log(item, 78);
   ipcRenderer.invoke('openFile', item);
 }
 
+// 打开文件目录
+function openPath(item) {
+  console.log(item, 78);
+  ipcRenderer.invoke('openPath', item);
+}
+
 function getData() {
-  ipcRenderer.invoke('getClipboardList', { syncStatus: 0 }).then((res) => {
+  let params = {syncStatus: 0}
+  if (query.value) params.text = query.value
+  ipcRenderer.invoke('getClipboardList', params).then((res) => {
     console.log(res);
     list.value = res
   })
@@ -227,11 +263,26 @@ function matchData(res) {
     for (let i = 0; i < listLen; i++) {
       if (list.value[i].hash == res.hash) {
         list.value.splice(i, 1);
-        break;
+        return true
       }
     }
     list.value.unshift(res);
   }
+  return false;
+}
+
+// 删除数据
+function deleteData(hash) {
+
+    let listLen =  list.value.length;
+    for (let i = 0; i < listLen; i++) {
+      if (list.value[i].hash == hash) {
+        list.value.splice(i, 1);
+        return true;
+      }
+    }
+  console.log(252);
+    return false;
 }
 const showDetail = (info) => {
   Modal.success({
@@ -239,6 +290,24 @@ const showDetail = (info) => {
     icon: () => null,
     content: () => h('div', {}, [
       h('p', info.text)
+
+    ]),
+  });
+};
+
+const showFileDetail = (files) => {
+  Modal.success({
+    title: () => null,
+    icon: () => null,
+    content: () => h('div', {}, [
+      h('p', files.map(item => {
+        return h('p',
+          {class: 'text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline text-13px ',
+            onClick: (event) => {
+               openFile(item);
+            }},
+          item)
+      }))
 
     ]),
   });
@@ -272,5 +341,36 @@ const showDetail = (info) => {
     background: darkgray;
   }
 }
+
+::v-deep(td.vxe-body--column) {
+  line-height: 48px;
+}
+
+.mytable-scrollbar ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+/*滚动条的轨道*/
+.mytable-scrollbar ::-webkit-scrollbar-track {
+  background-color: #FFFFFF;
+}
+/*滚动条里面的小方块，能向上向下移动*/
+.mytable-scrollbar ::-webkit-scrollbar-thumb {
+  background-color: #bfbfbf;
+  border-radius: 5px;
+  border: 1px solid #F1F1F1;
+  box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+}
+.mytable-scrollbar ::-webkit-scrollbar-thumb:hover {
+  background-color: #A8A8A8;
+}
+.mytable-scrollbar ::-webkit-scrollbar-thumb:active {
+  background-color: #787878;
+}
+/*边角，即两个滚动条的交汇处*/
+.mytable-scrollbar ::-webkit-scrollbar-corner {
+  background-color: #FFFFFF;
+}
+
 
 </style>

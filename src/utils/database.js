@@ -117,14 +117,14 @@ export function getDbList(table, data, opt = 'ORDER BY time DESC') {
 
   //拼接查询条件
   for (let i = 0; i < keys.length; i++) {
-    sqlParams += ` ${table}.${keys[i]} = ${data[keys[i]]} `;
+    sqlParams += ` ${table}.${keys[i]} = '${data[keys[i]]}' `;
     if (i != keys.length - 1) sqlParams += ' AND ';
   }
 
 
   const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
 
- // console.log(sql);
+  console.log(sql);
   const stmt = global.db.prepare(sql);
   //console.log(stmt.all());
   return stmt.all();

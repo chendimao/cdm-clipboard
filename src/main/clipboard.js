@@ -8,7 +8,7 @@ import {
   getRandomHash
 } from '../utils/index';
 import fs from "fs";
-import {join, basename} from "path";
+import {join, basename, dirname} from "path";
 import {
   deleteDB,
   execQuerySql,
@@ -120,6 +120,11 @@ export function getClipboardFiles () {
 export function openFile (event, arg){
   console.log(arg);
   shell.openPath(arg);
+}
+// 打开目录
+export function openPath (event, arg){
+  console.log(arg);
+  shell.openPath(dirname(arg));
 }
 
 // 获取剪切板列表

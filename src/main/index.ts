@@ -10,7 +10,14 @@ import {getElectronVersion} from './main'
 import {downloadFileToFolder, downloadFileToFolderNode, getDeviceId} from '../utils/index.js';
 
 
-import {deleteClipboard, getClipboardFiles, getClipboardList, openFile, setCurrentClipboard} from './clipboard.js';
+import {
+  deleteClipboard,
+  getClipboardFiles,
+  getClipboardList,
+  openFile,
+  openPath,
+  setCurrentClipboard
+} from './clipboard.js';
 require('@electron/remote/main').initialize();
 
 
@@ -74,7 +81,7 @@ function createWindow() {
 
   // 监听窗口被聚焦事件
   mainWindow.on('blur', () => {
-   // mainWindow.minimize();
+    mainWindow.minimize();
   });
 
 
@@ -149,6 +156,8 @@ if (!gotTheLock) {
     ipcMain.handle('getClipboardFiles', getClipboardFiles)
     // 打开文件
     ipcMain.handle('openFile', openFile)
+    //打开目录
+    ipcMain.handle('openPath', openPath)
     //获取剪切板列表
     ipcMain.handle('getClipboardList', getClipboardList);
 

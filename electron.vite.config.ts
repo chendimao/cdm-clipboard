@@ -5,7 +5,7 @@ import UnoCSS from '@unocss/vite';
 import Components from 'unplugin-vue-components/vite';
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 import AutoImport from 'unplugin-auto-import/vite'
-
+import { createStyleImportPlugin, VxeTableResolve } from 'vite-plugin-style-import'
 
 export default defineConfig({
   main: {
@@ -23,6 +23,11 @@ export default defineConfig({
     plugins: [
       vue() ,
       UnoCSS(),
+      createStyleImportPlugin({
+        resolves: [
+          VxeTableResolve()
+        ],
+      }),
       Components({
           resolvers: [
             AntDesignVueResolver({
