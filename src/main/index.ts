@@ -81,7 +81,7 @@ function createWindow() {
 
   // 监听窗口被聚焦事件
   mainWindow.on('blur', () => {
-    mainWindow.minimize();
+   !is.dev && mainWindow.minimize();
   });
 
 

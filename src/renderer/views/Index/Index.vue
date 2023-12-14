@@ -8,8 +8,10 @@
 <!--      style="width: 200px"-->
 <!--      @search="getData"-->
 <!--    />-->
+
+
+
     <vxe-table
-      show-overflow
       height="600"
       class="mytable-scrollbar"
       :show-header="false"
@@ -17,13 +19,13 @@
       :data="list"
       :menu-config="menuConfig"
       @menu-click="contextMenuClickEvent"
-      :scroll-y="{enabled: true}">
+      :scroll-y="{enabled: false}">
       <vxe-column type="seq" width="50"></vxe-column>
-      <vxe-column field="name" title="Name" width="340"   show-overflow="title" class="h-100px">
+      <vxe-column field="name" title="Name" width="340"   class="h-100px">
 
         <template #default="{row, index}">
 
-            <div v-if="row.text" class="text-black text-truncate select-none" @click.ctrl="showDetail(row)" @dblclick="setCurrentClipboard(row.hash)">
+            <div v-if="row.text" class="text-black text-truncate select-none w-100%" @click.ctrl="showDetail(row)" @dblclick="setCurrentClipboard(row.hash)">
               <div class="" >{{ row.text }}</div>
             </div>
             <div v-else-if="row.img" class="w-100%  "  @click.ctrl.prevent="openFile(row.img)" @dblclick="setCurrentClipboard(row.hash)">
@@ -37,11 +39,11 @@
             </div>
             <div v-else-if="row.file" class="w-100%  "   @dblclick="setCurrentClipboard(row.hash)">
 
-              <div v-if="row.file.split(',').length > 1" class=" cursor-pointer hover:decoration-underline text-12px" @click="showFileDetail(row.file.split(','))">
-                <span class="text-[dodgerblue]">【{{row.file.split(',')[0].substring(row.file.split(',')[0].lastIndexOf('\\') + 1,row.file.split(',')[0].length )}}】</span>
-                等{{row.file.split(',').length}}个文件
-              </div>
-              <div v-else  class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  text-12px " v-for="i in row.file.split(',')"  @click="openFile(i)">{{ i }}</div>
+<!--              <div v-if="row.file.split(',').length > 1" class=" cursor-pointer hover:decoration-underline text-12px" @click="showFileDetail(row.file.split(','))">-->
+<!--                <span class="text-[dodgerblue]">【{{row.file.split(',')[0].substring(row.file.split(',')[0].lastIndexOf('\\') + 1,row.file.split(',')[0].length )}}】</span>-->
+<!--                等{{row.file.split(',').length}}个文件-->
+<!--              </div>-->
+              <div   class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  text-12px " v-for="i in row.file.split(',')"  @click="openFile(i)">{{ i }}</div>
             </div>
 
         </template>
@@ -62,7 +64,12 @@ import remote from '@electron/remote/'
 import {message, Modal} from 'ant-design-vue'
 import * as dayjs from "dayjs";
 
-
+const tableData = ref([
+  { id: 10001, name: 'Test1', role: 'Develop Develop Develop Develop Develop Develop Develop Develop', sex: 'Man', age: 28, address: 'test abc' },
+  { id: 10002, name: 'Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2', role: 'Designer', sex: 'Women', age: 22, address: 'Guangzhou' },
+  { id: 10003, name: 'Test3', role: 'PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM', sex: 'Man', age: 32, address: 'Shanghai' },
+  { id: 10004, name: 'Test4', role: 'Test', sex: 'Women', age: 24, address: 'Shanghai' }
+])
 require('dayjs/locale/zh-cn');
 dayjs.locale('zh-cn');
 const relativeTime = require('dayjs/plugin/relativeTime')
@@ -329,22 +336,8 @@ const showFileDetail = (files) => {
   text-align: center;
 }
 
-.list {
-  &::-webkit-scrollbar  {
-    width: 9px;
-  }
-  &::-webkit-scrollbar-thumb  {
-    background-color: #ccc;
-    border-radius: 8px;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background: darkgray;
-  }
-}
 
-::v-deep(td.vxe-body--column) {
-  line-height: 48px;
-}
+
 
 .mytable-scrollbar ::-webkit-scrollbar {
   width: 10px;
@@ -370,6 +363,10 @@ const showFileDetail = (files) => {
 /*边角，即两个滚动条的交汇处*/
 .mytable-scrollbar ::-webkit-scrollbar-corner {
   background-color: #FFFFFF;
+}
+
+v-deep(.ant-image-preview-wrap) {
+  top: 40px;
 }
 
 
