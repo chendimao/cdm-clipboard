@@ -124,7 +124,7 @@ export function openFile (event, arg){
 // 打开目录
 export function openPath (event, arg){
   console.log(arg);
-  shell.openPath(dirname(arg));
+  shell.showItemInFolder(arg);
 }
 
 // 获取剪切板列表
