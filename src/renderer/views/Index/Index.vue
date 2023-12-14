@@ -1,3 +1,84 @@
+
+
+<template>
+  <div class=" w-100% h-610px">
+
+
+
+<!--    <a-button @click="getData">重新获取数据</a-button>-->
+    <a-tabs v-model:activeKey="tabKey">
+      <a-tab-pane key="" tab="全部">
+        <a-list bordered :data-source="list" class="list h-550px overflow-auto">
+          <template #renderItem="{ item, index }">
+
+            <a-tooltip v-if="item.text" placement="top" :title="item.text" :mouseEnterDelay="1.5">
+              <a-list-item  class="text-truncate hover:bg-[#eee] " :data="item" v-menus:right="menus" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item.hash)">
+                <div  class="text-truncate select-none">
+                  <span class="text-12px text-[gray] mr-5 text-right ">{{index + 1}}</span>
+                  <span >{{ item.text }}</span>
+
+                </div>
+              </a-list-item>
+            </a-tooltip>
+
+            <a-tooltip v-if="item.img && item.img.length > 0" placement="top" :title="item.img" :mouseEnterDelay="1.5">
+
+            <a-list-item v-if="item.img" @click.ctrl="openFile(item.img)" @dblclick="setCurrentClipboard(item.hash)">
+              <span class="text-12px text-[gray] mr-5 text-right">{{index + 1}}</span>
+              <span class="inline-block w-90% text-left">
+                <img :src="'cdm-clipboard:///' + item.img" alt="" class="w-auto max-h-100px" />
+              </span>
+            </a-list-item>
+            </a-tooltip>
+            <a-tooltip v-if="item.file && item.file.length > 0" placement="top" :title="item.file.split(',')" :mouseEnterDelay="1.5">
+
+              <a-list-item class="" v-if="item.file && item.file.length > 0" @dblclick="setCurrentClipboard(item.hash)">
+                <span class="text-12px text-[gray] mr-5 text-right">{{index + 1}}</span>
+                <div   class="text-[dodgerblue] text-left text-truncate cursor-pointer hover:decoration-underline w-90% " v-for="i in item.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
+              </a-list-item>
+            </a-tooltip>
+
+          </template>
+        </a-list>
+      </a-tab-pane>
+      <a-tab-pane key="text" tab="文本">
+        <a-list bordered :data-source="textList">
+          <template #renderItem="{ item }">
+            <a-tooltip v-if="item.text"  placement="top" :title="item.text">
+              <a-list-item v-if="item.text" >
+                <div  class="text-truncate">{{ item.text }}</div>
+              </a-list-item>
+            </a-tooltip>
+
+          </template>
+        </a-list>
+      </a-tab-pane>
+      <a-tab-pane key="img" tab="图片" force-render>
+        <a-list bordered :data-source="imgList">
+          <template #renderItem="{ item }">
+            <a-list-item v-if="item.img" @click.ctrl="openFile(item.img)" >
+              <img :src="'cdm-clipboard:///' + item.img" alt="" class="w-80% text-center" />
+            </a-list-item>
+          </template>
+        </a-list>
+      </a-tab-pane>
+      <a-tab-pane key="file" tab="文件">
+        <a-list bordered :data-source="fileList">
+          <template #renderItem="{ item }">
+            <a-tooltip v-if="item.file && item.file.length > 0" placement="top" :title="item.file.split(',')">
+              <a-list-item v-if="item.file && item.file.length > 0">
+                <div   class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  " v-for="i in item.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
+              </a-list-item>
+            </a-tooltip>
+          </template>
+        </a-list>
+      </a-tab-pane>
+    </a-tabs>
+  </div>
+</template>
+
+
+
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, shallowRef, h } from 'vue'
 import { useRouter } from 'vue-router'
@@ -53,16 +134,16 @@ const menus = shallowRef({
         ipcRenderer.invoke('deleteClipboard', arg.data.hash).then(res => {
           console.log(res);
           if (res) {
-          setTimeout(() => {
-            let listLen =  list.value.length;
-            for (let i = 0; i < listLen; i++) {
-              if (list.value[i].hash == arg.data.hash) {
-                console.log(arg.data.hash);
-                list.value.splice(i, 1);
-                break;
+            setTimeout(() => {
+              let listLen =  list.value.length;
+              for (let i = 0; i < listLen; i++) {
+                if (list.value[i].hash == arg.data.hash) {
+                  console.log(arg.data.hash);
+                  list.value.splice(i, 1);
+                  break;
+                }
               }
-            }
-          }, 100);
+            }, 100);
 
           }
 
@@ -135,7 +216,7 @@ function setCurrentClipboard(hash) {
   ipcRenderer.invoke('setCurrentClipboard', hash).then(res => {
     console.log(res, 95);
     matchData(res);
-   // getData();
+    // getData();
   });
 }
 
@@ -164,86 +245,9 @@ const showDetail = (info) => {
 };
 </script>
 
-<template>
-  <div class="P-login w-100%">
-<!--    <a-button @click="getData">重新获取数据</a-button>-->
-    <a-tabs v-model:activeKey="tabKey">
-      <a-tab-pane key="" tab="全部">
-        <a-list bordered :data-source="list">
-          <template #renderItem="{ item, index }">
-
-            <a-tooltip v-if="item.text" placement="top" :title="item.text" :mouseEnterDelay="1.5">
-              <a-list-item  class="text-truncate hover:bg-[#eee] " :data="item" v-menus:right="menus" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item.hash)">
-                <div  class="text-truncate select-none">
-                  <span class="text-12px text-[gray] mr-5 text-right ">{{index + 1}}</span>
-                  <span >{{ item.text }}</span>
-
-                </div>
-              </a-list-item>
-            </a-tooltip>
-
-            <a-tooltip v-if="item.img && item.img.length > 0" placement="top" :title="item.img" :mouseEnterDelay="1.5">
-
-            <a-list-item v-if="item.img" @click.ctrl="openFile(item.img)" @dblclick="setCurrentClipboard(item.hash)">
-              <span class="text-12px text-[gray] mr-5 text-right">{{index + 1}}</span>
-              <span class="inline-block w-90% text-left">
-                <img :src="'cdm-clipboard:///' + item.img" alt="" class="w-auto max-h-100px" />
-              </span>
-            </a-list-item>
-            </a-tooltip>
-            <a-tooltip v-if="item.file && item.file.length > 0" placement="top" :title="item.file.split(',')" :mouseEnterDelay="1.5">
-
-              <a-list-item class="" v-if="item.file && item.file.length > 0" @dblclick="setCurrentClipboard(item.hash)">
-                <span class="text-12px text-[gray] mr-5 text-right">{{index + 1}}</span>
-                <div   class="text-[dodgerblue] text-left text-truncate cursor-pointer hover:decoration-underline w-90% " v-for="i in item.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
-              </a-list-item>
-            </a-tooltip>
-
-          </template>
-        </a-list>
-      </a-tab-pane>
-      <a-tab-pane key="text" tab="文本">
-        <a-list bordered :data-source="textList">
-          <template #renderItem="{ item }">
-            <a-tooltip v-if="item.text"  placement="top" :title="item.text">
-              <a-list-item v-if="item.text" >
-                <div  class="text-truncate">{{ item.text }}</div>
-              </a-list-item>
-            </a-tooltip>
-
-          </template>
-        </a-list>
-      </a-tab-pane>
-      <a-tab-pane key="img" tab="图片" force-render>
-        <a-list bordered :data-source="imgList">
-          <template #renderItem="{ item }">
-            <a-list-item v-if="item.img" @click.ctrl="openFile(item.img)" >
-              <img :src="'cdm-clipboard:///' + item.img" alt="" class="w-80% text-center" />
-            </a-list-item>
-          </template>
-        </a-list>
-      </a-tab-pane>
-      <a-tab-pane key="file" tab="文件">
-        <a-list bordered :data-source="fileList">
-          <template #renderItem="{ item }">
-            <a-tooltip v-if="item.file && item.file.length > 0" placement="top" :title="item.file.split(',')">
-              <a-list-item v-if="item.file && item.file.length > 0">
-                <div   class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  " v-for="i in item.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
-              </a-list-item>
-            </a-tooltip>
-          </template>
-        </a-list>
-      </a-tab-pane>
-    </a-tabs>
-  </div>
-</template>
 
 <style scoped lang="less">
-.P-login {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-}
+
 .logo {
   display: block;
   margin: 50px auto 20px;
@@ -255,4 +259,18 @@ const showDetail = (info) => {
   width: 100%;
   text-align: center;
 }
+
+.list {
+  &::-webkit-scrollbar  {
+    width: 9px;
+  }
+  &::-webkit-scrollbar-thumb  {
+    background-color: #ccc;
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: darkgray;
+  }
+}
+
 </style>

@@ -18,10 +18,16 @@ require('@electron/remote/main').initialize();
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 360,
-    height: 670,
+    width: 400,
+    height: 650,
     show: false,
     autoHideMenuBar: true,
+    alwaysOnTop: true,
+    maximizable: false,
+    frame: false,
+    resizable: false,
+   // titleBarStyle: 'hidden',
+    closable: true,
     // ...(process.platform === 'linux' ? { icon } : {}),
     icon,
     webPreferences: {
@@ -55,6 +61,22 @@ function createWindow() {
   globalShortcut.register('CommandOrControl+Shift+L', () => {
     mainWindow.toggleDevTools()
   })
+
+  globalShortcut.register('Alt+R', () => {
+    //判断是否最小化
+    if (!mainWindow.isMinimized()) {
+      mainWindow.minimize();
+    } else {
+      mainWindow.restore();
+    }
+
+  })
+
+  // 监听窗口被聚焦事件
+  mainWindow.on('blur', () => {
+   // mainWindow.minimize();
+  });
+
 
 
 
@@ -123,6 +145,7 @@ if (!gotTheLock) {
 
 
 
+
     ipcMain.handle('getClipboardFiles', getClipboardFiles)
     // 打开文件
     ipcMain.handle('openFile', openFile)
@@ -134,6 +157,11 @@ if (!gotTheLock) {
 
     // 删除一项剪切板
     ipcMain.handle('deleteClipboard', deleteClipboard)
+
+
+    // 最小化
+    ipcMain.handle('handleMin', () => myWindow.minimize())
+    ipcMain.handle('handleClose', () => myWindow.close())
 
 
     trayInit();

@@ -10,6 +10,12 @@ import router from './router';
 const app = createApp(App);
 app.config.productionTip = false;
 import { directive } from 'vue3-menus';
+import "@icon-park/vue-next/styles/index.css";
+
+import { RecycleScroller } from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+
+app.component('RecycleScroller', RecycleScroller)
 
 app.directive('menus', directive); // 只注册指令
 
