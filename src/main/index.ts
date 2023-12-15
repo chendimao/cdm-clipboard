@@ -14,12 +14,14 @@ import {
   deleteClipboard,
   getClipboardFiles,
   getClipboardList,
-  openFile,
-  openPath,
+
   setCurrentClipboard
 } from './clipboard.js';
 require('@electron/remote/main').initialize();
-
+import {
+  copyPath, openFile,
+  openPath,
+} from './common/index.js';
 
 
 function createWindow() {
@@ -49,6 +51,7 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    myWindow.setSkipTaskbar(false);
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -69,7 +72,7 @@ function createWindow() {
     mainWindow.toggleDevTools()
   })
 
-  globalShortcut.register('Alt+R', () => {
+  globalShortcut.register('Alt+Q', () => {
     //判断是否最小化
     if (!mainWindow.isMinimized()) {
       mainWindow.minimize();
@@ -81,7 +84,7 @@ function createWindow() {
 
   // 监听窗口被聚焦事件
   mainWindow.on('blur', () => {
-   !is.dev && mainWindow.minimize();
+    !is.dev && mainWindow.minimize();
   });
 
 
@@ -158,6 +161,8 @@ if (!gotTheLock) {
     ipcMain.handle('openFile', openFile)
     //打开目录
     ipcMain.handle('openPath', openPath)
+    // 复制目录
+    ipcMain.handle('copyPath', copyPath);
     //获取剪切板列表
     ipcMain.handle('getClipboardList', getClipboardList);
 
@@ -169,8 +174,13 @@ if (!gotTheLock) {
 
 
     // 最小化
-    ipcMain.handle('handleMin', () => myWindow.minimize())
-    ipcMain.handle('handleClose', () => myWindow.close())
+    ipcMain.handle('handleMin', () => {
+      myWindow.minimize();
+    })
+    ipcMain.handle('handleClose', () => {
+      myWindow.minimize();
+      myWindow.setSkipTaskbar(true);
+    })
 
 
     trayInit();

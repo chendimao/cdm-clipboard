@@ -7,8 +7,7 @@ import {
   getFileHash, getHash,
   getRandomHash
 } from '../utils/index';
-import fs from "fs";
-import {join, basename, dirname} from "path";
+import {basename} from "path";
 import {
   deleteDB,
   execQuerySql,
@@ -23,7 +22,7 @@ import {
 } from "../utils/database";
 import logger from '../utils/logs.js';
 const clipboardListener = require('clipboard-event');
-
+const robot = require('robotjs');
 const { betterClipboard } = require('better-clipboard')
 
 let params =  {text: '', html: '', file: '', rtf: '', img: '', cache: ''};
@@ -31,8 +30,6 @@ let params =  {text: '', html: '', file: '', rtf: '', img: '', cache: ''};
  // import {app} from '@electron/remote';
 
 initDB();
-
-
 
 clipboardListener.startListening();
 clipboardListener.on('change', () => {
@@ -64,12 +61,13 @@ export function getClipboardFiles () {
       params.rtf =  clipboard.readRTF()
     }else if (item === 'image/png') {
       const img = clipboard.readImage().toPNG();
+
       hash = getFileHash(img);
       params.img = getDownLoadUrl(hash, 'png', img);
+      console.log(params.img);
       params.cache = params.img;
       //数据写入缓存表
       insertOrUpdateCache({hash, img: params.img,  cache: params.cache, drive: global.driveId, syncTime: '', syncStatus: 0, time: new Date().getTime()})
-
       break;
     }else if (item === 'text/uri-list') {
       //文件列表转为字符串存入数据库
@@ -88,18 +86,10 @@ export function getClipboardFiles () {
       // params.file = clipboard.readBuffer('FileNameW').toString('ucs2').replace(RegExp(String.fromCharCode(0), 'g'), '')
     }
 
-
-
   }
 
-
-
  // console.log(clipboard.availableFormats(), betterClipboard.readFilePathList(), params, 62);
-
-
   //判断文件或文本hash是否已存在
-
-
   // 如果不存在则插入数据
   if (!getDB('Clipboard', hash)) {
     const res = insertDB( {...params, hash, syncTime: new Date().getTime(), syncStatus: 0,  time: new Date().getTime()})
@@ -116,41 +106,36 @@ export function getClipboardFiles () {
 
 
 
-// 打开文件
-export function openFile (event, arg){
-  console.log(arg);
-  shell.openPath(arg);
-}
-// 打开目录
-export function openPath (event, arg){
-  console.log(arg);
-  shell.showItemInFolder(arg);
-}
+
 
 // 获取剪切板列表
 export function getClipboardList(event, params) {
-
   return getDbList('Clipboard', params);
 }
 
 // 设置双击项为当前剪切项
-export function setCurrentClipboard(event, hash) {
-  console.log(hash, 141);
-  const update = updateDB('Clipboard', {time: new Date().getTime()}, hash);
-  console.log(update, 142);
-  if (update.changes > 0) {
-    const  data = getDB('Clipboard', hash);
-    console.log(data.text);
+export function setCurrentClipboard(event, hash, type = 'text') {
 
-    clipboard.write({
-      text: data.text,
-      html: data.html,
-      rtf: data.rtf,
-      image: data.img
-    })
-    return data;
-  }
-  return false;
+  // 判断修改的是否为文件或图片
+  const isFile = ['file', 'img'].includes(type);
+    const  data = getDB(isFile ? 'Cache' : 'Clipboard', hash);
+    // 如果为文件则设置文件剪切板
+    if (isFile) {
+      type === 'file' ? betterClipboard.writeFileList(data['file'].split(',')) :  clipboard.writeImage(data['img']);
+    } else {
+      clipboard.write({
+        text: data.text,
+        html: data.html,
+        rtf: data.rtf
+      })
+    }
+   // console.log(data.text);
+    BrowserWindow.fromId(global.mainId).blur();
+
+    // 模拟组合键，例如Ctrl+v
+    robot.keyTap('v', ['control']);
+    return data || false;
+
 
 }
 
@@ -163,10 +148,6 @@ export function deleteClipboard(event, hash) {
   }
 }
 
-
-function downFile() {
-  downloadFileToFolderNode();
-}
 
 
 //写入或更新缓存

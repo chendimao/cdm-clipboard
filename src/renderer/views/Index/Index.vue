@@ -10,13 +10,13 @@
 <!--    />-->
 
 
-
     <vxe-table
       height="600"
       class="mytable-scrollbar"
       :show-header="false"
       :row-config="{isHover: true, isCurrent: true,}"
       :data="list"
+      ref="xTable"
       :menu-config="menuConfig"
       @menu-click="contextMenuClickEvent"
       :scroll-y="{enabled: false}">
@@ -25,25 +25,25 @@
 
         <template #default="{row, index}">
 
-            <div v-if="row.text" class="text-black text-truncate select-none w-100%" @click.ctrl="showDetail(row)" @dblclick="setCurrentClipboard(row.hash)">
+            <div v-if="row.text" class="text-black text-truncate select-none w-100% pt-10px pb-10px" @click.ctrl="showDetail(row)" @dblclick="setCurrentClipboard(row.hash, 'text')">
               <div class="" >{{ row.text }}</div>
             </div>
-            <div v-else-if="row.img" class="w-100%  "  @click.ctrl.prevent="openFile(row.img)" @dblclick="setCurrentClipboard(row.hash)">
+            <div v-else-if="row.img" class="w-100% pt-10px pb-10px "  @click.ctrl.prevent="openFile(row.img)" @dblclick.prevent="setCurrentClipboard(row.hash, 'img')">
               <div class=" w-90% text-left flex items-center">
                 <a-image
-                  class="h-48px p-2"
+                  class="h-20px  p-2"
                   :src="'cdm-clipboard:///' + row.img"
                   :alt="row.img"
                 />
               </div>
             </div>
-            <div v-else-if="row.file" class="w-100%  "   @dblclick="setCurrentClipboard(row.hash)">
+            <div v-else-if="row.file" class="w-100%  pt-10px pb-10px"   @dblclick="setCurrentClipboard(row.hash, 'file')">
 
 <!--              <div v-if="row.file.split(',').length > 1" class=" cursor-pointer hover:decoration-underline text-12px" @click="showFileDetail(row.file.split(','))">-->
 <!--                <span class="text-[dodgerblue]">【{{row.file.split(',')[0].substring(row.file.split(',')[0].lastIndexOf('\\') + 1,row.file.split(',')[0].length )}}】</span>-->
 <!--                等{{row.file.split(',').length}}个文件-->
 <!--              </div>-->
-              <div   class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  text-12px " v-for="i in row.file.split(',')"  @click="openFile(i)">{{ i }}</div>
+              <div   class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  text-12px " v-for="i in row.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
             </div>
 
         </template>
@@ -64,12 +64,7 @@ import remote from '@electron/remote/'
 import {message, Modal} from 'ant-design-vue'
 import * as dayjs from "dayjs";
 
-const tableData = ref([
-  { id: 10001, name: 'Test1', role: 'Develop Develop Develop Develop Develop Develop Develop Develop', sex: 'Man', age: 28, address: 'test abc' },
-  { id: 10002, name: 'Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2 Test2', role: 'Designer', sex: 'Women', age: 22, address: 'Guangzhou' },
-  { id: 10003, name: 'Test3', role: 'PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM PM', sex: 'Man', age: 32, address: 'Shanghai' },
-  { id: 10004, name: 'Test4', role: 'Test', sex: 'Women', age: 24, address: 'Shanghai' }
-])
+
 require('dayjs/locale/zh-cn');
 dayjs.locale('zh-cn');
 const relativeTime = require('dayjs/plugin/relativeTime')
@@ -80,7 +75,7 @@ const account = ref('')
 const password = ref('')
 
 const router = useRouter()
-
+const xTable = ref()
 const list = ref([])
 const tabKey = ref('')
 
@@ -130,26 +125,28 @@ const menuConfig = ref({
     console.log(data);
     if (data.row.img) {
       data.options[0] = [
-        {code: 'refresh', name: '刷新',   disabled: false},
-        {code: 'copy', name: '复制',   disabled: false},
-        {code: 'openImgPath', name: '打开图片目录',   disabled: false},
-        {code: 'remove', name: '删除', disabled: false},
+        {code: 'refresh', name: '刷新列表',   disabled: false},
+        {code: 'copyImg', name: '复制图片',   disabled: false},
+        {code: 'copyPath', name: '复制目录',   disabled: false},
+        {code: 'openImgPath', name: '打开目录',   disabled: false},
+        {code: 'remove', name: '删除图片', disabled: false},
 
       ]
     } else if (data.row.file) {
       data.options[0] = [
-        {code: 'refresh', name: '刷新',   disabled: false},
-        {code: 'copy', name: '复制',   disabled: false},
-        {code: 'openFilePath', name: '打开文件目录',   disabled: false},
-        {code: 'openCachePath', name: '打开缓存目录',   disabled: false},
-        {code: 'remove', name: '删除', disabled: false},
+        {code: 'refresh', name: '刷新列表',   disabled: false},
+        {code: 'copyFile', name: '复制文件',   disabled: false},
+        {code: 'copyPath', name: '复制目录',   disabled: false},
+        // {code: 'openFilePath', name: '打开文件目录',   disabled: false},
+        {code: 'openCachePath', name: '打开目录',   disabled: false},
+        {code: 'remove', name: '删除文件', disabled: false},
 
       ]
     } else {
       data.options[0] = [
-        {code: 'refresh', name: '刷新',   disabled: false},
-        {code: 'copy', name: '复制',   disabled: false},
-        {code: 'remove', name: '删除', disabled: false},
+        {code: 'refresh', name: '刷新列表',   disabled: false},
+        {code: 'copy', name: '复制文本',   disabled: false},
+        {code: 'remove', name: '删除文本', disabled: false},
 
       ]
     }
@@ -171,12 +168,24 @@ function contextMenuClickEvent(ev) {
     'remove': () => {
       ipcRenderer.invoke('deleteClipboard', ev.row.hash).then( res => {
 
-         if (res && deleteData(ev.row.hash)) message.success('删除成功');
+         if (res && deleteData(ev.row)) message.success('删除成功');
 
       });
     },
     'copy': () => {
-      setCurrentClipboard(ev.row.hash)
+      setCurrentClipboard(ev.row.hash,  'text')
+      message.success('复制成功');
+    },
+    'copyFile': () => {
+      setCurrentClipboard(ev.row.hash,  'file')
+      message.success('复制成功');
+    },
+    'copyImg': () => {
+      setCurrentClipboard(ev.row.hash,  'img')
+      message.success('复制成功');
+    },
+    'copyPath': () => {
+      ipcRenderer.invoke('copyPath', ev.row.img || ev.row.file.split(',')[0])
       message.success('复制成功');
     },
     'openFilePath': () => {
@@ -207,15 +216,15 @@ onMounted(() => {
       // if (arg.file) {
       //    arg.file =  arg.file.split(',') ;
       // }
-      currentClipboard.value = arg
-      console.log(currentClipboard, 50)
-      list.value.unshift(arg)
+    //  currentClipboard.value = arg
+     // console.log(currentClipboard, 50)
+      //list.value.unshift(arg)
+      xTable.value.insert(arg);
     }
   })
 
   ipcRenderer.on('updateData',  (event, arg) =>{
-    console.log(arg, 64);
-    matchData(arg);
+      matchData(arg);
     //getData();
   })
 
@@ -255,41 +264,41 @@ function getData() {
 }
 
 // 设置当前双击项为最新剪切项
-function setCurrentClipboard(hash) {
-  ipcRenderer.invoke('setCurrentClipboard', hash).then(res => {
-    console.log(res, 95);
-    matchData(res);
+function setCurrentClipboard(hash, type) {
+  ipcRenderer.invoke('setCurrentClipboard', hash, type).then(res => {
+    //console.log(res, 95);
+    //matchData(res);
     // getData();
   });
 }
 
+
+
 // 数据放到第一条
-function matchData(res) {
-  if (res) {
-    let listLen =  list.value.length;
-    for (let i = 0; i < listLen; i++) {
-      if (list.value[i].hash == res.hash) {
-        list.value.splice(i, 1);
-        return true
-      }
+async function matchData(res) {
+  console.log(xTable.value.getTableData())
+  const {fullData} = xTable.value.getTableData();
+  const len = fullData.length;
+  let data;
+  for (let i = 0; i < len; i++) {
+    if (fullData[i].hash == res.hash) {
+      data = fullData[i];
+      break;
     }
-    list.value.unshift(res);
   }
-  return false;
+   const isdel = await xTable.value.remove(data);
+  console.log(isdel);
+   if (isdel) {
+     xTable.value.insert(res);
+   }
+
+  console.log(list.value, res, 286);
+
 }
 
 // 删除数据
-function deleteData(hash) {
-
-    let listLen =  list.value.length;
-    for (let i = 0; i < listLen; i++) {
-      if (list.value[i].hash == hash) {
-        list.value.splice(i, 1);
-        return true;
-      }
-    }
-  console.log(252);
-    return false;
+function deleteData(item) {
+  return xTable.value.remove(item);
 }
 const showDetail = (info) => {
   Modal.success({
@@ -322,7 +331,7 @@ const showFileDetail = (files) => {
 </script>
 
 
-<style scoped lang="less">
+<style   lang="less">
 
 .logo {
   display: block;
@@ -368,6 +377,7 @@ const showFileDetail = (files) => {
 v-deep(.ant-image-preview-wrap) {
   top: 40px;
 }
+
 
 
 </style>

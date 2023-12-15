@@ -40,16 +40,16 @@ export function downloadFileToFolder(  join, url, fileName, fileType) {
 //将流转换为下载地址
 export function  getDownLoadUrl(fileName, fileType, data) {
   console.log(app.getPath('userData'), 40);
-   if (!fs.existsSync(app.getPath('userData') + '/data')) {
-       fs.mkdirSync(app.getPath('userData') + '/data');
+   if (!fs.existsSync(app.getPath('userData') + '\\data')) {
+       fs.mkdirSync(app.getPath('userData') + '\\data');
    }
 
-  if (!fs.existsSync(app.getPath('userData') + '/data/file')) {
-       fs.mkdirSync(app.getPath('userData') + '/data/file');
+  if (!fs.existsSync(app.getPath('userData') + '\\data\\file')) {
+       fs.mkdirSync(app.getPath('userData') + '\\data\\file');
    }
 
-    fs.writeFileSync(path.join(app.getPath('userData'), '/data/file', `${fileName}.${fileType}`), data);
-  return path.join(app.getPath('userData'), '/data/file', `${fileName}.${fileType}`).replaceAll('\\', '/')
+    fs.writeFileSync(path.join(app.getPath('userData'), '\\data\\file', `${fileName}.${fileType}`), data);
+  return path.join(app.getPath('userData'), '\\data\\file', `${fileName}.${fileType}`)
 
 }
 

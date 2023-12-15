@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: CDM云同步剪切板
+productName: 云同步剪切板
 directories:
   buildResources: build
 files:

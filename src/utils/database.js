@@ -81,10 +81,12 @@ export function insertDB(data) {
 
 // 插入缓存数据
 export function insertCache(data) {
+  const sql = `INSERT INTO Cache ( hash,drive, cache,  syncTime, syncStatus,time) ` +
+    "VALUES ( @hash,@drive, @cache, @syncTime, @syncStatus, @time)";
   const insert = global.db.prepare(
-    `INSERT INTO Cache ( hash,drive, cache,  syncTime, syncStatus,time) ` +
-    "VALUES ( @hash,@drive, @cache, @syncTime, @syncStatus, @time)"
+    sql
   );
+  console.log(sql, 'insert');
   return insert.run(data);
 
   // const insertMany = this.db.transaction((cats) => {
@@ -96,11 +98,11 @@ export function insertCache(data) {
 
 }
 
-//  查询hash数据
+//  根据hash查询单条数据
 export function getDB(table, hash) {
 
   // 左连接查询cache表
-  const sqlJoin= '  LEFT OUTER JOIN Cache ON Cache.hash = ' + table + '.hash ';
+  const sqlJoin= table === 'Clipboard' ? '  LEFT OUTER JOIN Cache ON Cache.hash = ' + table + '.hash ' : '';
 
   const stmt = global.db.prepare(
     `select *, ${table}.hash from ${table} ${sqlJoin} where ${table}.hash='${hash}';`
@@ -124,7 +126,7 @@ export function getDbList(table, data, opt = 'ORDER BY time DESC') {
 
   const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
 
-  console.log(sql);
+  console.log(sql, 'query');
   const stmt = global.db.prepare(sql);
   //console.log(stmt.all());
   return stmt.all();
@@ -142,28 +144,38 @@ export function updateDB(table, data, hash) {
   })
   dataSql = dataSql.slice(0, -1);
   dataStr = dataStr.slice(0, -1);
+
+
+
+  const sql = `update ${table} set ${dataSql} where hash=?;`;
   const update = global.db.prepare(
-    `update ${table} set ${dataSql} where hash=?;`
+    sql
   );
+  console.log(sql, 'update');
  return update.run(dataStr, hash);
 }
 
 // 删除数据
 export function deleteDB(table, hash) {
+
+  const sql = `delete from ${table} where hash=?;`;
   const deleteData = global.db.prepare(
-    `delete from ${table} where hash=?;`
+    sql
   );
+  console.log(sql)
   return deleteData.run(hash);
 }
 
 // 执行sql
 export function execQuerySql(sql) {
    const stmt = global.db.prepare(sql);
+  console.log(sql, 'exec');
   return stmt.all();
 }
 export function execUpdateSql(sql) {
   console.log(sql);
    const stmt = global.db.prepare(sql);
+  console.log(sql);
   return stmt.run();
 }
 
