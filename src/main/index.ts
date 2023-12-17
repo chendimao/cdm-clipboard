@@ -8,7 +8,7 @@ import {readDir} from "./readDir";
 import {trayInit} from "./tray";
 import {getElectronVersion} from './main'
 import {downloadFileToFolder, downloadFileToFolderNode, getDeviceId} from '../utils/index.js';
-
+import {exec} from 'child_process';
 
 import {
   deleteClipboard,
@@ -70,6 +70,10 @@ function createWindow() {
 
   globalShortcut.register('CommandOrControl+Shift+L', () => {
     mainWindow.toggleDevTools()
+  })
+  globalShortcut.register('Alt+R', () => {
+    console.log('test', 75);
+    exec('D:\\QuickLook-3.7.3\\QuickLook.exe  D:\\使用说明.txt', {})
   })
 
   globalShortcut.register('Alt+Q', () => {
