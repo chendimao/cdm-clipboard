@@ -8,7 +8,8 @@ import {readDir} from "./readDir";
 import {trayInit} from "./tray";
 import {getElectronVersion} from './main'
 import {downloadFileToFolder, downloadFileToFolderNode, getDeviceId} from '../utils/index.js';
-import {exec} from 'child_process';
+import {downloadQuickLook} from '../utils/plugins.js';
+
 
 import {
   deleteClipboard,
@@ -20,8 +21,9 @@ import {
 require('@electron/remote/main').initialize();
 import {
   copyPath, openFile,
-  openPath,
+  openPath, openQuickLook,
 } from './common/index.js';
+import * as path from "path";
 
 
 function createWindow() {
@@ -71,19 +73,15 @@ function createWindow() {
   globalShortcut.register('CommandOrControl+Shift+L', () => {
     mainWindow.toggleDevTools()
   })
-  globalShortcut.register('Alt+R', () => {
-    console.log('test', 75);
-    exec('D:\\QuickLook-3.7.3\\QuickLook.exe  D:\\使用说明.txt', {})
-  })
 
-  globalShortcut.register('Alt+Q', () => {
+
+  globalShortcut.register('Alt+R', () => {
     //判断是否最小化
     if (!mainWindow.isMinimized()) {
       mainWindow.minimize();
     } else {
       mainWindow.restore();
     }
-
   })
 
   // 监听窗口被聚焦事件
@@ -176,6 +174,12 @@ if (!gotTheLock) {
     // 删除一项剪切板
     ipcMain.handle('deleteClipboard', deleteClipboard)
 
+
+    // 下载quickLook
+    ipcMain.handle('downloadQuickLook', downloadQuickLook);
+
+    // 使用quickLook预览文件
+    ipcMain.handle('openQuickLook', openQuickLook);
 
     // 最小化
     ipcMain.handle('handleMin', () => {

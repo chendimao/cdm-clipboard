@@ -12,13 +12,13 @@ import machineId from "node-machine-id";
  */
 const fs = require('fs')
 const path = require('path')
-import {app, BrowserWindow  } from 'electron'
+import { BrowserWindow  } from 'electron'
 import crypto from 'crypto';
-export function downloadFileToFolder(  join, url, fileName, fileType) {
+export function downloadFileToFolder(   url, fileName, fileType) {
   BrowserWindow.fromId(global.mainId).webContents.downloadURL(url);
   BrowserWindow.fromId(global.mainId).webContents.session.once('will-download', (event, item, webContents) => {
         //设置保存路径
-        const filePath = join(app.getPath('userData'), '/download', `${fileName}.${fileType}`);
+        const filePath = path.join(path.dirname(process.execPath), '\\download', `${fileName}.${fileType}`);
         console.log(filePath);
         item.setSavePath(filePath);
         item.on('updated', (event, state) => {
@@ -39,29 +39,30 @@ export function downloadFileToFolder(  join, url, fileName, fileType) {
 
 //将流转换为下载地址
 export function  getDownLoadUrl(fileName, fileType, data) {
-  console.log(app.getPath('userData'), 40);
-   if (!fs.existsSync(app.getPath('userData') + '\\data')) {
-       fs.mkdirSync(app.getPath('userData') + '\\data');
+   if (!(path.dirname(process.execPath) + '\\data')) {
+       fs.mkdirSync(path.dirname(process.execPath) + '\\data');
    }
 
-  if (!fs.existsSync(app.getPath('userData') + '\\data\\file')) {
-       fs.mkdirSync(app.getPath('userData') + '\\data\\file');
+  if (!(fs.existsSync(path.dirname(process.execPath) + '\\data\\file'))) {
+       fs.mkdirSync(path.dirname(process.execPath) + '\\data\\file');
    }
 
-    fs.writeFileSync(path.join(app.getPath('userData'), '\\data\\file', `${fileName}.${fileType}`), data);
-  return path.join(app.getPath('userData'), '\\data\\file', `${fileName}.${fileType}`)
+    fs.writeFileSync(path.join(path.dirname(process.execPath), '\\data\\file', `${fileName}.${fileType}`), data);
+  return path.join(path.dirname(process.execPath), '\\data\\file', `${fileName}.${fileType}`)
 
 }
+
+
 
 // 将文件复制到缓存目录
 export function copyFileToCache(oldPath, newPath) {
   console.log(oldPath, newPath, 56);
-  if (!fs.existsSync(app.getPath('userData') + '/data')) {
-    fs.mkdirSync(app.getPath('userData') + '/data');
+  if (!(fs.existsSync(path.dirname(process.execPath) + '\\data'))) {
+    fs.mkdirSync(path.dirname(process.execPath) + '\\data');
   }
 
-  if (!fs.existsSync(app.getPath('userData') + '/data/file')) {
-    fs.mkdirSync(app.getPath('userData') + '/data/file');
+  if (!(fs.existsSync(path.dirname(process.execPath) + '\\data\\file'))) {
+    fs.mkdirSync(path.dirname(process.execPath) + '\\data\\file');
   }
   return fs.copyFileSync(oldPath, newPath);
 
@@ -76,7 +77,7 @@ export function copyFileToCache(oldPath, newPath) {
  */
 export function downloadFileToFolderNode(  request,  fs,join, url, fileName, fileType) {
     //设置保存路径
-    const targetFolder = join(app.getPath('userData'), '/download', `${fileName}.${fileType}`);
+    const targetFolder = join(path.dirname(process.execPath), '\\download', `${fileName}.${fileType}`);
     //创建可写流
     let stream = fs.createWriteStream(targetFolder);
     request({

@@ -1,19 +1,19 @@
 import Database from 'better-sqlite3';
-import {join} from "path";
+import path, {join} from "path";
 import fs from "fs";
 import {app} from "electron";
 
 export function initDB(options = {}) {
 
-  if (!fs.existsSync(app.getPath('userData') + '/data')) {
-    fs.mkdirSync(app.getPath('userData') + '/data');
+  if (!fs.existsSync(path.dirname(process.execPath) + '\\data')) {
+    fs.mkdirSync(path.dirname(process.execPath) + '\\data');
   }
 
-  if (!fs.existsSync(app.getPath('userData') + '/data/db')) {
-    fs.mkdirSync(app.getPath('userData') + '/data/db');
+  if (!fs.existsSync(path.dirname(process.execPath) + '\\data\\db')) {
+    fs.mkdirSync(path.dirname(process.execPath) + '\\data\\db');
   }
 
-  const db = new Database(join(app.getPath('userData'), '/data/db', `clipboard.db`), options);
+  const db = new Database(join(path.dirname(process.execPath), '\\data\\db', `clipboard.db`), options);
   try {
     console.log('created');
       db.exec(

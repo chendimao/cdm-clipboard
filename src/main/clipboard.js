@@ -7,7 +7,7 @@ import {
   getFileHash, getHash,
   getRandomHash
 } from '../utils/index';
-import {basename} from "path";
+import path, {basename} from "path";
 import {
   deleteDB,
   execQuerySql,
@@ -77,8 +77,8 @@ export function getClipboardFiles () {
       // 将文件写入缓存
       let cacheList = []
       betterClipboard.readFilePathList().forEach(item => {
-          copyFileToCache(item, app.getPath('userData') + '\\data\\file\\' + basename(item))
-          cacheList.push(app.getPath('userData') + '\\data\\file\\' + basename(item));
+          copyFileToCache(item, path.dirname(process.execPath) + '\\data\\file\\' + basename(item))
+          cacheList.push(path.dirname(process.execPath) + '\\data\\file\\' + basename(item));
       })
       params.cache = cacheList.join(',');
       //数据写入缓存表

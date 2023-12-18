@@ -8,17 +8,20 @@
 <!--      style="width: 200px"-->
 <!--      @search="getData"-->
 <!--    />-->
-
+    <a-button @click="donwloadQuick">下载quickLook</a-button>
 
     <vxe-table
-      height="600"
+      height="577"
       class="mytable-scrollbar"
       :show-header="false"
       :row-config="{isHover: true, isCurrent: true,}"
       :data="list"
       ref="xTable"
       :menu-config="menuConfig"
+      :mouse-config="{selected: true}"
+      @cell-click="cellClickEvent"
       @menu-click="contextMenuClickEvent"
+      :keyboard-config="{isArrow: true, isEnter: true}"
       :scroll-y="{enabled: false}">
       <vxe-column type="seq" width="50"></vxe-column>
       <vxe-column field="name" title="Name" width="340"   class="h-100px">
@@ -34,6 +37,7 @@
                   class="h-20px  p-2"
                   :src="'cdm-clipboard:///' + row.img"
                   :alt="row.img"
+                  :preview="false"
                 />
               </div>
             </div>
@@ -56,7 +60,7 @@
 
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, shallowRef, h } from 'vue'
+import {ref, onMounted, computed, watch, shallowRef, h, onUnmounted} from 'vue'
 import { useRouter } from 'vue-router'
 import { getDownLoadUrl } from '../../utils/index.js'
 import { getGlobal } from '@electron/remote/'
@@ -79,7 +83,8 @@ const xTable = ref()
 const list = ref([])
 const tabKey = ref('')
 
-const currentClipboard = ref()
+const currentClipboard = ref(); // 当前剪切板
+const selectClipboard = ref(); // 当前鼠标单击选项
 
 const textList = computed(() => {
   return list.value.filter((item) => item.text)
@@ -216,7 +221,7 @@ onMounted(() => {
       // if (arg.file) {
       //    arg.file =  arg.file.split(',') ;
       // }
-    //  currentClipboard.value = arg
+     // currentClipboard.value = arg
      // console.log(currentClipboard, 50)
       //list.value.unshift(arg)
       xTable.value.insert(arg);
@@ -227,6 +232,9 @@ onMounted(() => {
       matchData(arg);
     //getData();
   })
+  document.addEventListener('keydown', handleKeyDown);
+  console.log(document.querySelector('.vxe-table--body-wrapper.body--wrapper'));
+  document.querySelector('.vxe-table--body-wrapper.body--wrapper').onkeydown = handleSpaceBar;
 
 })
 
@@ -260,15 +268,18 @@ function getData() {
   ipcRenderer.invoke('getClipboardList', params).then((res) => {
     console.log(res);
     list.value = res
+    currentClipboard.value = res[0];
   })
 }
 
 // 设置当前双击项为最新剪切项
 function setCurrentClipboard(hash, type) {
   ipcRenderer.invoke('setCurrentClipboard', hash, type).then(res => {
-    //console.log(res, 95);
+    console.log(res, 272);
+    currentClipboard.value = res;
     //matchData(res);
     // getData();
+
   });
 }
 
@@ -292,6 +303,8 @@ async function matchData(res) {
      xTable.value.insert(res);
    }
 
+   //跳转到第一条
+  xTable.value.scrollToRow(xTable.value.getData(0))
   console.log(list.value, res, 286);
 
 }
@@ -328,6 +341,54 @@ const showFileDetail = (files) => {
     ]),
   });
 };
+
+function donwloadQuick() {
+  ipcRenderer.invoke('downloadQuickLook');
+}
+
+const handleKeyDown = (event) => {
+  console.log(event);
+  if (event.code === 'Space') {
+    // 在这里执行要触发的逻辑
+    console.log(selectClipboard.value.img || selectClipboard.value.file);
+    if (selectClipboard.value.img || selectClipboard.value.file ) {
+      ipcRenderer.invoke('openQuickLook', selectClipboard.value.img || selectClipboard.value.file );
+    }
+    console.log('Space', selectClipboard.value)
+  }
+
+
+
+
+}
+
+
+function cellClickEvent(ev) {
+    selectClipboard.value = ev.data[ev.$rowIndex];
+    console.log(selectClipboard.value);
+
+}
+
+// 取消空格带动滚动条
+function handleSpaceBar(ev) {
+  console.log(ev);
+
+  if(ev.preventDefault){
+    ev.preventDefault();
+  }else{
+    window.event.returnValue = false;
+  }
+
+}
+
+
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyDown);
+})
+
+
+
 </script>
 
 
