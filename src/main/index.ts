@@ -1,4 +1,4 @@
-import {app, shell, BrowserWindow, ipcMain, dialog,  Menu, Tray, BrowserView, protocol, net, globalShortcut } from 'electron'
+import {app, shell, BrowserWindow,screen, dialog,  } from 'electron'
 import {join} from 'path'
 import request from 'request'
 import fs from 'fs'
@@ -6,22 +6,13 @@ import {electronApp, optimizer, is} from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import {readDir} from "./readDir";
 import {trayInit} from "./tray";
-import {getElectronVersion} from './main'
-import {downloadFileToFolder, downloadFileToFolderNode, getDeviceId} from '../utils/index.js';
-import {downloadQuickLook} from '../utils/plugins.js';
+import {initDB} from "../utils/database";
 
 
-import {
-  deleteClipboard,
-  getClipboardFiles,
-  getClipboardList,
-
-  setCurrentClipboard
-} from './clipboard.js';
 require('@electron/remote/main').initialize();
 import {
-  copyPath, openFile,
-  openPath, openQuickLook,
+  copyPath, handleEvent, handleGlobal, handleShortcut, openFile,
+  openPath, openQuickLook, regMyProtocol,
 } from './common/index.js';
 import * as path from "path";
 
@@ -70,30 +61,24 @@ function createWindow() {
   }
 
 
-  globalShortcut.register('CommandOrControl+Shift+L', () => {
-    mainWindow.toggleDevTools()
-  })
 
-
-  globalShortcut.register('Alt+R', () => {
-    //判断是否最小化
-    if (!mainWindow.isMinimized()) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.restore();
-    }
-  })
 
   // 监听窗口被聚焦事件
   mainWindow.on('blur', () => {
     !is.dev && mainWindow.minimize();
   });
 
+  let display = screen.getPrimaryDisplay();
+  let x = display.bounds.width - 400 - 100;
+  let y = display.bounds.height - (display.bounds.height / 2) - 325;
+
+  mainWindow.setPosition(x, y);
 
 
-
+  // 全局变量
+  global.mainWindow = mainWindow;
+  global.app = app;
   global.mainId =  mainWindow.id;
-
   return mainWindow
 
 
@@ -131,12 +116,8 @@ if (!gotTheLock) {
 
     myWindow = createWindow();
     require("@electron/remote/main").enable(myWindow.webContents);
-    // 全局变量
-    global.mainWindow = myWindow;
-    global.app = app;
-    global.driveId = getDeviceId();
-    // 注册自定义协议
-    regMyProtocol();
+
+
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron')
 
@@ -157,41 +138,24 @@ if (!gotTheLock) {
 
 
 
+    // 注册自定义协议
+    regMyProtocol();
+    // 管理快捷键
+    handleShortcut();
 
-    ipcMain.handle('getClipboardFiles', getClipboardFiles)
-    // 打开文件
-    ipcMain.handle('openFile', openFile)
-    //打开目录
-    ipcMain.handle('openPath', openPath)
-    // 复制目录
-    ipcMain.handle('copyPath', copyPath);
-    //获取剪切板列表
-    ipcMain.handle('getClipboardList', getClipboardList);
+    // 通用全局变量管理
+    handleGlobal();
 
-    // 设置双击项为当前剪切项
-    ipcMain.handle('setCurrentClipboard', setCurrentClipboard)
+    // 事件通信处理
+    handleEvent();
 
-    // 删除一项剪切板
-    ipcMain.handle('deleteClipboard', deleteClipboard)
+    // 初始化数据库
+    initDB();
 
-
-    // 下载quickLook
-    ipcMain.handle('downloadQuickLook', downloadQuickLook);
-
-    // 使用quickLook预览文件
-    ipcMain.handle('openQuickLook', openQuickLook);
-
-    // 最小化
-    ipcMain.handle('handleMin', () => {
-      myWindow.minimize();
-    })
-    ipcMain.handle('handleClose', () => {
-      myWindow.minimize();
-      myWindow.setSkipTaskbar(true);
-    })
-
-
+    //托盘管理
     trayInit();
+
+
 
 
   })
@@ -220,14 +184,7 @@ if (!gotTheLock) {
 
 
 
-function regMyProtocol() {
-  // 注册协议 cdm-clipboard 协议名字无所谓 自定义即可
 
-  protocol.handle('cdm-clipboard', (request) => {
-   return net.fetch('file://' + request.url.slice('cdm-clipboard://'.length))
-  })
-
-}
 
 
 

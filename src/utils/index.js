@@ -39,16 +39,10 @@ export function downloadFileToFolder(   url, fileName, fileType) {
 
 //将流转换为下载地址
 export function  getDownLoadUrl(fileName, fileType, data) {
-   if (!(path.dirname(process.execPath) + '\\data')) {
-       fs.mkdirSync(path.dirname(process.execPath) + '\\data');
-   }
+  createDir(global.fileDir())
 
-  if (!(fs.existsSync(path.dirname(process.execPath) + '\\data\\file'))) {
-       fs.mkdirSync(path.dirname(process.execPath) + '\\data\\file');
-   }
-
-    fs.writeFileSync(path.join(path.dirname(process.execPath), '\\data\\file', `${fileName}.${fileType}`), data);
-  return path.join(path.dirname(process.execPath), '\\data\\file', `${fileName}.${fileType}`)
+    fs.writeFileSync(global.fileDir(`${fileName}.${fileType}`), data);
+  return global.fileDir(`${fileName}.${fileType}`)
 
 }
 
@@ -57,14 +51,11 @@ export function  getDownLoadUrl(fileName, fileType, data) {
 // 将文件复制到缓存目录
 export function copyFileToCache(oldPath, newPath) {
   console.log(oldPath, newPath, 56);
-  if (!(fs.existsSync(path.dirname(process.execPath) + '\\data'))) {
-    fs.mkdirSync(path.dirname(process.execPath) + '\\data');
+  createDir(global.fileDir())
+  if (!fs.existsSync(newPath)) {
+    return fs.copyFileSync(oldPath, newPath);
   }
-
-  if (!(fs.existsSync(path.dirname(process.execPath) + '\\data\\file'))) {
-    fs.mkdirSync(path.dirname(process.execPath) + '\\data\\file');
-  }
-  return fs.copyFileSync(oldPath, newPath);
+  return false;
 
 }
 
@@ -128,6 +119,14 @@ export function getDeviceId() {
   // 生成设备唯一id，存储本设备缓存路径
   const machineId = require('node-machine-id');
   return machineId.machineIdSync({original: true});
+
+}
+
+// 创建目录
+export function createDir(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, {recursive: true});
+  }
 
 }
 

@@ -8,7 +8,7 @@
 <!--      style="width: 200px"-->
 <!--      @search="getData"-->
 <!--    />-->
-    <a-button @click="donwloadQuick">下载quickLook</a-button>
+<!--    <a-button @click="donwloadQuick">下载quickLook</a-button>-->
 
     <vxe-table
       height="577"
@@ -32,7 +32,7 @@
               <div class="" >{{ row.text }}</div>
             </div>
             <div v-else-if="row.img" class="w-100% pt-10px pb-10px "  @click.ctrl.prevent="openFile(row.img)" @dblclick.prevent="setCurrentClipboard(row.hash, 'img')">
-              <div class=" w-90% text-left flex items-center">
+              <div class=" w-40%   flex items-center">
                 <a-image
                   class="h-20px  p-2"
                   :src="'cdm-clipboard:///' + row.img"
@@ -41,13 +41,14 @@
                 />
               </div>
             </div>
-            <div v-else-if="row.file" class="w-100%  pt-10px pb-10px"   @dblclick="setCurrentClipboard(row.hash, 'file')">
+            <div  v-if="row.cache" class="w-100%  pt-10px pb-10px"   @dblclick="setCurrentClipboard(row.hash, 'file')">
 
-<!--              <div v-if="row.file.split(',').length > 1" class=" cursor-pointer hover:decoration-underline text-12px" @click="showFileDetail(row.file.split(','))">-->
-<!--                <span class="text-[dodgerblue]">【{{row.file.split(',')[0].substring(row.file.split(',')[0].lastIndexOf('\\') + 1,row.file.split(',')[0].length )}}】</span>-->
-<!--                等{{row.file.split(',').length}}个文件-->
-<!--              </div>-->
-              <div   class="text-[dodgerblue] text-truncate cursor-pointer hover:decoration-underline  text-12px " v-for="i in row.file.split(',')"  @click.ctrl="openFile(i)">{{ i }}</div>
+              <div   class=" text-truncate cursor-pointer hover:decoration-underline active:decoration-underline " :style="{textDecorationLine:selectFile == i ? 'underline' : '', textDecorationColor:selectFile == i ? 'orange' : ''}" v-for="i in row.cache.split('??::')"  @click="selectFile = i">
+                <span class="text-black text-bold mr-5px">{{i.replace(/^.*[\\\/]/, '')}}</span>
+                <a-tooltip :title="i">
+                  <span class="text-[dodgerblue] text-12px">({{ i }})</span>
+                </a-tooltip>
+              </div>
             </div>
 
         </template>
@@ -85,6 +86,7 @@ const tabKey = ref('')
 
 const currentClipboard = ref(); // 当前剪切板
 const selectClipboard = ref(); // 当前鼠标单击选项
+const selectFile = ref();
 
 const textList = computed(() => {
   return list.value.filter((item) => item.text)
@@ -128,30 +130,29 @@ const menuConfig = ref({
 
   visibleMethod (data) {
     console.log(data);
-    if (data.row.img) {
+    if (data.row?.img) {
       data.options[0] = [
         {code: 'refresh', name: '刷新列表',   disabled: false},
         {code: 'copyImg', name: '复制图片',   disabled: false},
         {code: 'copyPath', name: '复制目录',   disabled: false},
         {code: 'openImgPath', name: '打开目录',   disabled: false},
-        {code: 'remove', name: '删除图片', disabled: false},
+        {code: 'remove', name: '删除记录', disabled: false},
 
       ]
-    } else if (data.row.file) {
+    } else if (data.row?.file) {
       data.options[0] = [
         {code: 'refresh', name: '刷新列表',   disabled: false},
         {code: 'copyFile', name: '复制文件',   disabled: false},
         {code: 'copyPath', name: '复制目录',   disabled: false},
-        // {code: 'openFilePath', name: '打开文件目录',   disabled: false},
         {code: 'openCachePath', name: '打开目录',   disabled: false},
-        {code: 'remove', name: '删除文件', disabled: false},
+        {code: 'remove', name: '删除记录', disabled: false},
 
       ]
     } else {
       data.options[0] = [
         {code: 'refresh', name: '刷新列表',   disabled: false},
         {code: 'copy', name: '复制文本',   disabled: false},
-        {code: 'remove', name: '删除文本', disabled: false},
+        {code: 'remove', name: '删除记录', disabled: false},
 
       ]
     }
@@ -171,7 +172,8 @@ function contextMenuClickEvent(ev) {
       message.success('刷新成功');
     },
     'remove': () => {
-      ipcRenderer.invoke('deleteClipboard', ev.row.hash).then( res => {
+      console.log(ev.row);
+      ipcRenderer.invoke('deleteClipboard', ev.row.hash, ev.row.type).then( res => {
 
          if (res && deleteData(ev.row)) message.success('删除成功');
 
@@ -190,14 +192,12 @@ function contextMenuClickEvent(ev) {
       message.success('复制成功');
     },
     'copyPath': () => {
-      ipcRenderer.invoke('copyPath', ev.row.img || ev.row.file.split(',')[0])
+      ipcRenderer.invoke('copyPath', ev.row.img || ev.row.cache.split('??::')[0])
       message.success('复制成功');
     },
-    'openFilePath': () => {
-      openPath(ev.row.file.split(',')[0]);
-    },
+
     'openCachePath': () => {
-      openPath(ev.row.cache.split(',')[0]);
+      openPath(ev.row.cache.split('??::')[0]);
     },
     'openImgPath': () => {
       openPath(ev.row.img.replaceAll('/','\\'));
@@ -216,11 +216,9 @@ onMounted(() => {
   //const app = require('@electron/remote').getGlobal('mainWindow');
   getData()
   ipcRenderer.on('setClipboard', (event, arg) => {
-    console.log(dayjs.locale('zh-cn'))
+    console.log(arg, 216);
     if (arg) {
-      // if (arg.file) {
-      //    arg.file =  arg.file.split(',') ;
-      // }
+
      // currentClipboard.value = arg
      // console.log(currentClipboard, 50)
       //list.value.unshift(arg)
@@ -233,9 +231,7 @@ onMounted(() => {
     //getData();
   })
   document.addEventListener('keydown', handleKeyDown);
-  console.log(document.querySelector('.vxe-table--body-wrapper.body--wrapper'));
-  document.querySelector('.vxe-table--body-wrapper.body--wrapper').onkeydown = handleSpaceBar;
-
+  donwloadQuick();
 })
 
 watch(currentClipboard, (data) => {
@@ -244,7 +240,7 @@ watch(currentClipboard, (data) => {
 
 function getClipboardList() {
   ipcRenderer.invoke('getClipboardFiles').then((res) => {
-
+    console.log(res, 237);
     //list.value = res;
   })
 }
@@ -266,7 +262,7 @@ function getData() {
   let params = {syncStatus: 0}
   if (query.value) params.text = query.value
   ipcRenderer.invoke('getClipboardList', params).then((res) => {
-    console.log(res);
+    console.log(res, 259);
     list.value = res
     currentClipboard.value = res[0];
   })
@@ -287,6 +283,7 @@ function setCurrentClipboard(hash, type) {
 
 // 数据放到第一条
 async function matchData(res) {
+  console.log(res, 283);
   console.log(xTable.value.getTableData())
   const {fullData} = xTable.value.getTableData();
   const len = fullData.length;
@@ -297,14 +294,16 @@ async function matchData(res) {
       break;
     }
   }
+  let insertData = JSON.parse(JSON.stringify(data));
    const isdel = await xTable.value.remove(data);
   console.log(isdel);
    if (isdel) {
-     xTable.value.insert(res);
+     xTable.value.insert(insertData);
    }
 
    //跳转到第一条
-  xTable.value.scrollToRow(xTable.value.getData(0))
+  //xTable.value.scrollToRow(xTable.value.getData(0))
+  document.querySelector('.vxe-table--body-wrapper.body--wrapper').scrollTop = 0;
   console.log(list.value, res, 286);
 
 }
@@ -343,17 +342,17 @@ const showFileDetail = (files) => {
 };
 
 function donwloadQuick() {
-  ipcRenderer.invoke('downloadQuickLook');
+ // ipcRenderer.invoke('downloadQuickLook');
 }
 
 const handleKeyDown = (event) => {
-  console.log(event);
+
   if (event.code === 'Space') {
+    console.log(event);
+    event.preventDefault();
     // 在这里执行要触发的逻辑
-    console.log(selectClipboard.value.img || selectClipboard.value.file);
-    if (selectClipboard.value.img || selectClipboard.value.file ) {
-      ipcRenderer.invoke('openQuickLook', selectClipboard.value.img || selectClipboard.value.file );
-    }
+      ipcRenderer.invoke('openQuickLook', selectClipboard.value.img || selectFile.value  || selectClipboard.value.text,  selectClipboard.value.text ? true : false);
+
     console.log('Space', selectClipboard.value)
   }
 
@@ -368,19 +367,6 @@ function cellClickEvent(ev) {
     console.log(selectClipboard.value);
 
 }
-
-// 取消空格带动滚动条
-function handleSpaceBar(ev) {
-  console.log(ev);
-
-  if(ev.preventDefault){
-    ev.preventDefault();
-  }else{
-    window.event.returnValue = false;
-  }
-
-}
-
 
 
 onUnmounted(() => {
@@ -437,6 +423,12 @@ onUnmounted(() => {
 
 v-deep(.ant-image-preview-wrap) {
   top: 40px;
+}
+
+
+v-deep(.vxe-table--body-wrapper.body--wrapper) {
+  scroll-behavior: auto;
+  scroll-behavior: smooth;
 }
 
 

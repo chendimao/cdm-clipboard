@@ -1,19 +1,13 @@
 import Database from 'better-sqlite3';
-import path, {join} from "path";
+import path, {dirname, join} from "path";
 import fs from "fs";
 import {app} from "electron";
+import {createDir} from "./index";
 
 export function initDB(options = {}) {
+  createDir(global.dbDir())
 
-  if (!fs.existsSync(path.dirname(process.execPath) + '\\data')) {
-    fs.mkdirSync(path.dirname(process.execPath) + '\\data');
-  }
-
-  if (!fs.existsSync(path.dirname(process.execPath) + '\\data\\db')) {
-    fs.mkdirSync(path.dirname(process.execPath) + '\\data\\db');
-  }
-
-  const db = new Database(join(path.dirname(process.execPath), '\\data\\db', `clipboard.db`), options);
+  const db = new Database(global.dbDir(`clipboard.db`), options);
   try {
     console.log('created');
       db.exec(
@@ -22,6 +16,7 @@ export function initDB(options = {}) {
         text  text,
         html text,
         rtf  text,
+        type char(4),
         hash varchar(32),
         syncTime varchar,
         syncStatus int,
@@ -65,8 +60,8 @@ export function initDB(options = {}) {
 // 插入数据
 export function insertDB(data) {
   const insert = global.db.prepare(
-    `INSERT INTO Clipboard (text, html, rtf,  hash, syncTime, syncStatus, time) ` +
-    "VALUES (@text, @html, @rtf,  @hash, @syncTime, @syncStatus, @time)"
+    `INSERT INTO Clipboard (text, html, rtf, type, hash, syncTime, syncStatus, time) ` +
+    "VALUES (@text, @html, @rtf, @type,  @hash, @syncTime, @syncStatus, @time)"
   );
   return insert.run(data);
 
@@ -86,7 +81,7 @@ export function insertCache(data) {
   const insert = global.db.prepare(
     sql
   );
-  console.log(sql, 'insert');
+ // console.log(sql, 'insert');
   return insert.run(data);
 
   // const insertMany = this.db.transaction((cats) => {
@@ -101,11 +96,8 @@ export function insertCache(data) {
 //  根据hash查询单条数据
 export function getDB(table, hash) {
 
-  // 左连接查询cache表
-  const sqlJoin= table === 'Clipboard' ? '  LEFT OUTER JOIN Cache ON Cache.hash = ' + table + '.hash ' : '';
-
   const stmt = global.db.prepare(
-    `select *, ${table}.hash from ${table} ${sqlJoin} where ${table}.hash='${hash}';`
+    `select *, ${table}.hash from ${table}  where ${table}.hash='${hash}';`
   );
   return stmt.get();
 }
@@ -115,7 +107,7 @@ export function getDbList(table, data, opt = 'ORDER BY time DESC') {
   const keys = Object.keys(data);
   let sqlParams = '';
   // 左连接查询cache表
-  const sqlJoin= '  LEFT OUTER JOIN Cache ON Cache.hash = ' + table + '.hash ';
+ const sqlJoin= '  LEFT OUTER JOIN Cache ON Cache.hash = ' + table + '.hash ';
 
   //拼接查询条件
   for (let i = 0; i < keys.length; i++) {
@@ -124,14 +116,16 @@ export function getDbList(table, data, opt = 'ORDER BY time DESC') {
   }
 
 
-  const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
-
-  console.log(sql, 'query');
-  const stmt = global.db.prepare(sql);
+  //const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
+  const sql2= `select *,Clipboard.hash, GROUP_CONCAT(Cache.file, '??::') as file,  GROUP_CONCAT(Cache.cache, '??::') as cache  from Clipboard   ${sqlJoin}  where  ${sqlParams} GROUP BY Clipboard.hash  ORDER BY Clipboard.time DESC;`;
+ // console.log(sql2, 120);
+  const stmt = global.db.prepare(sql2);
   //console.log(stmt.all());
   return stmt.all();
 
 }
+
+
 
 // 更新数据
 export function updateDB(table, data, hash) {
@@ -151,7 +145,7 @@ export function updateDB(table, data, hash) {
   const update = global.db.prepare(
     sql
   );
-  console.log(sql, 'update');
+ // console.log(sql, 'update');
  return update.run(dataStr, hash);
 }
 
@@ -162,21 +156,38 @@ export function deleteDB(table, hash) {
   const deleteData = global.db.prepare(
     sql
   );
-  console.log(sql)
+ // console.log(sql)
   return deleteData.run(hash);
 }
 
 // 执行sql
 export function execQuerySql(sql) {
    const stmt = global.db.prepare(sql);
-  console.log(sql, 'exec');
+  //console.log(sql, 'exec');
   return stmt.all();
 }
 export function execUpdateSql(sql) {
-  console.log(sql);
+ // console.log(sql);
    const stmt = global.db.prepare(sql);
-  console.log(sql);
+  //console.log(sql);
   return stmt.run();
+}
+
+// 执行insert sql事务
+export function execInsertSqlTransaction(table, data) {
+
+  const keysStr = Object.keys(data[0]).join(',');
+
+  const valsStr = Object.keys(data[0]).map(key => '@' + key ).join(',');
+
+  const sql = `INSERT INTO ${table} (${keysStr}) VALUES (${valsStr})`;
+  const insert = db.prepare(sql);
+
+  const insertData = db.transaction((data) => {
+    for (const d of data) insert.run(d);
+  });
+  const res = insertData(data);
+
 }
 
 

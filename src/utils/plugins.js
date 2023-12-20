@@ -4,7 +4,7 @@
 // 下载quickLook
 
 import {serviceAxios} from "../api/http";
-import {getDownLoadUrl} from "./index";
+import {createDir, getDownLoadUrl} from "./index";
 import path from "path";
 import fs from "fs";
 const compressing = require('compressing');
@@ -15,22 +15,15 @@ export    function downloadQuickLook() {
     methods: 'get',
     responseType: 'arraybuffer',
     onDownloadProgress: (ev) => {
-      console.log(ev, 15);
+     // console.log(ev, 15);
     }
   }).then(res => {
 
-     if (!(path.dirname(process.execPath) + '\\data')) {
-       fs.mkdirSync(path.dirname(process.execPath) + '\\data');
-     }
 
-     if (!(fs.existsSync(path.dirname(process.execPath) + '\\data\\plugins'))) {
-       fs.mkdirSync(path.dirname(process.execPath) + '\\data\\plugins');
-     }
+     createDir(global.pluginDir());
 
-
-     console.log(res )
-     fs.writeFileSync(path.join(path.dirname(process.execPath), '\\data\\plugins', `quickLook.zip`), res);
-     const url = path.join(path.dirname(process.execPath), '\\data\\plugins', `quickLook.zip`)
+     fs.writeFileSync(global.pluginDir(`quickLook.zip`), res);
+     const url = global.pluginDir(`quickLook.zip`);
 
 
      const AdmZip = require('adm-zip');
