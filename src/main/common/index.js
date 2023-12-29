@@ -116,6 +116,7 @@ export function handleShortcut() {
     //判断是否最小化
     if (!BrowserWindow.fromId(global.mainId).isMinimized()) {
       BrowserWindow.fromId(global.mainId).minimize();
+      BrowserWindow.fromId(global.mainId).hide();
     } else {
       BrowserWindow.fromId(global.mainId).restore();
     }
