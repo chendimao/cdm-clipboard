@@ -8,7 +8,7 @@ const serverConfig = {
 // 创建 axios 请求实例
 export const serviceAxios = axios.create({
  // baseURL: serverConfig.baseURL, // 基础请求地址
-  timeout: 10000, // 请求超时设置
+  timeout: 1000000, // 请求超时设置
   withCredentials: false, // 跨域请求是否需要携带 cookie
 });
 
@@ -29,7 +29,7 @@ export const serviceAxios = axios.create({
         config.headers["content-type"] = "application/json"; // 默认类型
       }
     }
-    console.log("请求配置", config);
+    //console.log("request config", config);
     return config;
   },
   (error) => {
@@ -41,12 +41,14 @@ export const serviceAxios = axios.create({
 // 创建响应拦截
 serviceAxios.interceptors.response.use(
   (res) => {
+    //console.log(res, 44);
     let data = res.data;
     // 处理自己的业务逻辑，比如判断 token 是否过期等等
     // 代码块
     return data;
   },
   (error) => {
+    //console.log(error, 51);
     let message = "";
     if (error && error.response) {
       switch (error.response.status) {

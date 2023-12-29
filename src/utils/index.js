@@ -47,25 +47,31 @@ export function  getDownLoadUrl(fileName, fileType, data) {
 }
 
 
+export function  getDownLoadIcon(fileName, fileType = 'png', data) {
+  createDir(global.iconDir())
+
+    fs.writeFileSync(global.iconDir(`${fileName}.${fileType}`), data);
+  return global.iconDir(`${fileName}.${fileType}`)
+
+}
+
+
 
 // 将文件复制到缓存目录
 export function copyFileToCache(oldPath, newPath) {
   console.log(oldPath, newPath, 56);
   createDir(global.fileDir())
   if (!fs.existsSync(newPath)) {
-    return fs.copyFileSync(oldPath, newPath);
+    return fs.copyFile(oldPath, newPath, () => {
+      console.log('复制成功');
+    });
   }
   return false;
 
 }
 
 
-/**
- *  description: 下载文件到指定目录
- *  param {string} fileName 文件名称
- *  param {string} fileType 文件格式
- *  author: longyunfei
- */
+
 export function downloadFileToFolderNode(  request,  fs,join, url, fileName, fileType) {
     //设置保存路径
     const targetFolder = join(path.dirname(process.execPath), '\\download', `${fileName}.${fileType}`);
@@ -129,6 +135,5 @@ export function createDir(dir) {
   }
 
 }
-
 
 

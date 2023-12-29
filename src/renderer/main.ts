@@ -24,7 +24,9 @@ function useTable (app: App) {
 }
 
 
-
+import VueVirtualScroller from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+app.use(VueVirtualScroller)
 
 app.use(Antd).use(useTable);
 app.use(router);

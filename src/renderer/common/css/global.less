@@ -4,6 +4,87 @@
 }
 
 
-.mytable-scrollbar td.vxe-body--column {
-  padding: 0 !important;
+.mytable-scrollbar, .my-card   {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: #f1f2f8;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    border: 1px solid #F1F1F1;
+    box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #f6f7fa;
+
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background-color: #787878;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background-color: #FFFFFF;
+  }
+
 }
+
+.mytable-scrollbar {
+  .vxe-body--row.row--current  {
+    background-color: #f6f7fa !important;
+    z-index: 999;
+    // border-radius: 8px;
+  }
+  td.vxe-body--column {
+    padding: 0 !important;
+  }
+  .vxe-body--row.row-yellow {
+    background-color: #e1ed8952 !important;
+    z-index: 99;
+  }
+  .vxe-body--row.row--hover  {
+
+    background-color: #d5d5d8 !important;
+    z-index: 959;
+  }
+  .vxe-body--column.col--selected {
+    box-shadow: none !important;
+    border: none;
+    // border-radius: 8px;
+
+  }
+  tr.vxe-body--row {
+    box-sizing: border-box !important;
+  }
+  .vxe-cell {
+    padding: 0 !important;
+  }
+}
+
+.my-card {
+  td.vxe-body--column {
+    padding: 0 !important;
+  }
+
+  .vxe-cell {
+    padding: 0 !important;
+  }
+}
+
+.my-header {
+  .ant-input  {
+  border:0 !important;
+    background: #f1f3f8;
+}
+
+  .ant-input:focus, .ant-input-focused {
+    border-color: none;
+    box-shadow: none;
+  }
+
+}
+
+

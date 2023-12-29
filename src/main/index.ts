@@ -15,13 +15,14 @@ import {
   openPath, openQuickLook, regMyProtocol,
 } from './common/index.js';
 import * as path from "path";
+import {downloadIcon, downloadQuickLook} from '../utils/plugins.js';
 
 
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 400,
-    height: 650,
+    width: 580,
+    height: 530,
     show: false,
     autoHideMenuBar: true,
     alwaysOnTop: true,
@@ -36,7 +37,7 @@ function createWindow() {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       webSecurity: false,
-      devTools: is.dev,
+      devTools: true,
       nodeIntegration: true,
       contextIsolation: false,
     }
@@ -69,7 +70,7 @@ function createWindow() {
   });
 
   let display = screen.getPrimaryDisplay();
-  let x = display.bounds.width - 400 - 100;
+  let x = display.bounds.width - 520 - 100;
   let y = display.bounds.height - (display.bounds.height / 2) - 325;
 
   mainWindow.setPosition(x, y);
@@ -114,10 +115,12 @@ if (!gotTheLock) {
 // Some APIs can only be used after this event occurs.
   app.whenReady().then(() => {
 
+
     myWindow = createWindow();
     require("@electron/remote/main").enable(myWindow.webContents);
 
-
+    myWindow.webContents.openDevTools();
+    myWindow.openDevTools();
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron')
 
@@ -128,6 +131,7 @@ if (!gotTheLock) {
       optimizer.watchWindowShortcuts(window)
       // require("@electron/remote/main").enable(myWindow.webContents);
     })
+
 
 
     app.on('activate', function () {
@@ -155,6 +159,11 @@ if (!gotTheLock) {
     //托盘管理
     trayInit();
 
+    // 初始化文件icon
+    downloadIcon();
+    // 初始化quickLook
+    downloadQuickLook();
+
 
 
 
@@ -175,8 +184,6 @@ if (!gotTheLock) {
       app.quit()
     }
   })
-
-
 
 
 }

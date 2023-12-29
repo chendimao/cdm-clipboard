@@ -1,10 +1,12 @@
-import {BrowserWindow, clipboard, globalShortcut, ipcMain, net, protocol, shell} from 'electron';
-import {mkdirSync, unlinkSync, writeFileSync, writeFile, existsSync} from "fs";
+import {BrowserWindow, clipboard, globalShortcut, ipcMain, net,app,  protocol, shell} from 'electron';
+import {mkdirSync, unlinkSync, writeFileSync, writeFile, existsSync, unlink} from "fs";
 import {join, basename, dirname} from "path";
 import {exec} from 'child_process';
-import {deleteClipboard, getClipboardFiles, getClipboardList, setCurrentClipboard} from "../clipboard";
+import {deleteClipboard, getClipboardFiles, getClipboardList, isCopyFile, setCurrentClipboard} from "../clipboard";
 import {downloadQuickLook} from "../../utils/plugins";
-import {getDeviceId} from "../../utils";
+import {getDeviceId, getDownLoadIcon} from "../../utils";
+import {iconList} from "../../utils/options";
+
 // 打开文件
 export function openFile (event, arg){
   console.log(arg);
@@ -65,6 +67,8 @@ export function handleEvent() {
 
   // 设置双击项为当前剪切项
   ipcMain.handle('setCurrentClipboard', setCurrentClipboard)
+  // 单独复制文件
+  ipcMain.handle('isCopyFile', isCopyFile)
 
   // 删除选中项
   ipcMain.handle('deleteClipboard', deleteClipboard)
@@ -92,9 +96,12 @@ export function handleGlobal() {
   global.driveId = getDeviceId();
   global.exePath = dirname(process.execPath);
   global.dataDir = (path = '') => join(dirname(process.execPath) + '\\data', path);
+  global.iconDir = (path = '') => join(dirname(process.execPath) + '\\data\\icon\\', path);
   global.fileDir = (path = '') => join(dirname(process.execPath) + '\\data\\file\\', path);
+  global.tempDir = (path = '') => join(dirname(process.execPath) + '\\data\\temp\\', path);
   global.dbDir = (path = '') => join(dirname(process.execPath) + '\\data\\db\\', path);
   global.pluginDir = (path = '') => join(dirname(process.execPath) + '\\data\\plugins\\', path);
+  global.fileIsExists = (path) => existsSync(path);
 }
 
 // 统一管理快捷键
@@ -115,6 +122,35 @@ export function handleShortcut() {
   })
 
 }
+
+// 获取文件系统图标
+export async function getFileIcon(ext = '') {
+
+  const res =  []
+
+  for(const key of iconList.keys()) {
+    const tempFile = join(__dirname, `temp.${key}`);
+     writeFileSync(tempFile, ""); // create empty temp file
+    const image = (await app.getFileIcon(tempFile)).toPNG(); // get file icon of temp file
+     unlinkSync(tempFile); // delete temp file
+    getDownLoadIcon(key.toLowerCase(), 'png', image);
+  }
+
+  //
+  //   const tempFile = join(__dirname, `temp.${key}`);
+  //   writeFileSync(tempFile, ""); // create empty temp file
+  //   const image = (await app.getFileIcon(tempFile)).toDataURL(); // get file icon of temp file
+  //   unlinkSync(tempFile); // delete temp file
+  //   getDownLoadIcon(key.toLowerCase(), 'png', image);
+
+
+
+  return res;
+
+}
+
+
+
 // 注册协议 cdm-clipboard 协议名字无所谓 自定义即可
 export function regMyProtocol() {
 
