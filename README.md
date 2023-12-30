@@ -5,6 +5,7 @@
 #### 目前只有win安装包
 #### 交流群：928826414，欢迎提需求提bug
 
+！[alt 截图](./jt.png)
 
 - [cdm-clipboard](https://github.com/chendimao/cdm-clipboard)
 
