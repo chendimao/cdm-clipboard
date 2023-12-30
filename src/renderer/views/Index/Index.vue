@@ -34,95 +34,102 @@
     </div>
 
     <div class=" w-100% h-530px p-8px flex justify-start">
+      <template v-if="list.length > 0">
+        <div class="w-280px mytable-scrollbar">
+          <DynamicScroller
+            class="scroller  h-480px "
+            :items="list"
+            :item-size="55"
+            key-field="hash"
+            :minItemSize="55"
+            :emitUpdate="false"
+            @update="updateRow"
+            ref="scrollView"
+            @scroll-end="scrollEnd"
+            @scroll="handleScroll"
+            v-slot="{ item , index}"
+          >
+            <div :class="{'active': selectIndex == index}" @click="cellClickEvent(item, index)" class="pl-5px w-280px hover:bg-[#d5d5d8] border-1px border-solid border-[#f1f2f8] border-l-2px border-l-solid border-l-[#f1f2f8] border-r-2px border-r-solid border-r-[#f1f2f8]"  >
+              <div v-if="item.text" class="text-black text-truncate select-none w-100%   cursor-pointer  h-55px" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item )">
 
+                <div class=" w-260px  flex items-center ">
+                  <a-image
+                    width="28px"
+                    :src="'cdm-clipboard:///' + iconDir() + '/copy.png'"
+                    :fallback="'cdm-clipboard:///' + iconDir() + '/1.png'"
+                    :preview="false"
+                  />
+                  <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " v-html="brightenKeyword(item.text, query)"></div>
 
-      <div class="w-280px mytable-scrollbar">
-        <DynamicScroller
-          class="scroller  h-480px "
-          :items="list"
-          :item-size="55"
-          key-field="hash"
-          :minItemSize="55"
-          :emitUpdate="false"
-          @update="updateRow"
-          v-slot="{ item , index}"
-        >
-        <div :class="{'active': selectIndex == index}" @click="cellClickEvent(item, index)" class="pl-5px w-280px hover:bg-[#d5d5d8] border-1px border-solid border-[#f1f2f8] border-l-2px border-l-solid border-l-[#f1f2f8] border-r-2px border-r-solid border-r-[#f1f2f8]"  >
-          <div v-if="item.text" class="text-black text-truncate select-none w-100%   cursor-pointer  h-55px" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item )">
+                </div>
 
-            <div class=" w-260px  flex items-center ">
-              <a-image
-                width="28px"
-                :src="'cdm-clipboard:///' + iconDir() + '/copy.png'"
-                :fallback="'cdm-clipboard:///' + iconDir() + '/1.png'"
-                :preview="false"
-              />
-              <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " >{{ item.text }}</div>
-
-            </div>
-
-          </div>
-          <div v-else-if="item.img" class="w-100% pt-5px  cursor-pointer select-none h-55px "  @click.ctrl.prevent="openFile(item.img)" @dblclick.prevent="setCurrentClipboard(item)">
-            <!--              <img :src="icon" />-->
-            <div class=" w-260px  flex items-center">
-
-              <a-image
-                width="28px"
-                :src="`cdm-clipboard:///${iconDir()}/${item.img.substring(item.img.lastIndexOf('.') + 1)}.png`"
-                :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
-                :preview="false"
-              />
-              <div class="text-black text-bold ml-5px text-15px w-220px">
-                <div class="text-truncate">{{item.img.replace(/^.*[\\\/]/, '')}}</div>
-                <a-tooltip :title="item.img" :mouseEnterDelay="1">
-                  <div class="text-[gray] text-12px text-truncate">{{ item.img }}</div>
-                </a-tooltip>
               </div>
-            </div>
-          </div>
-          <div  v-else-if="item.cache" class="w-100% pt-5px  cursor-pointer select-none h-55px "   @dblclick="setCurrentClipboard(item)">
-            <div class=" w-260px  flex items-center">
-              <a-image
-                width="28px"
-                :src="`cdm-clipboard:///${iconDir()}/${item.cache.split('??::')[0].substring(item.cache.split('??::')[0].lastIndexOf('.') + 1)}.png`"
-                :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
+              <div v-else-if="item.img" class="w-100% pt-5px  cursor-pointer select-none h-55px "  @click.ctrl.prevent="openFile(item.img)" @dblclick.prevent="setCurrentClipboard(item)">
+                <!--              <img :src="icon" />-->
+                <div class=" w-260px  flex items-center">
 
-                :preview="false"
-              />
-              <div class="text-black text-bold ml-5px text-15px w-220px" @click="selectFile = item.cache.split('??::')[0]">
-                <div class="text-truncate">{{item.cache.split('??::')[0].replace(/^.*[\\\/]/, '')}} <span v-if="item.cache.split('??::').length > 1">等{{item.cache.split('??::').length}}个文件</span></div>
-                <a-tooltip :title="item.cache.replaceAll('??::', ', ')" :mouseEnterDelay="1">
-                  <div class="text-[gray] text-12px text-truncate">{{ item.cache.split('??::')[0] }}</div>
-                </a-tooltip>
+                  <a-image
+                    width="28px"
+                    :src="`cdm-clipboard:///${iconDir()}/${item.img.substring(item.img.lastIndexOf('.') + 1)}.png`"
+                    :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
+                    :preview="false"
+                  />
+                  <div class="text-black text-bold ml-5px text-15px w-220px">
+                    <div class="text-truncate">{{item.img.replace(/^.*[\\\/]/, '')}}</div>
+                    <a-tooltip :title="item.img" :mouseEnterDelay="1">
+                      <div class="text-[gray] text-12px text-truncate">{{ item.img }}</div>
+                    </a-tooltip>
+                  </div>
+                </div>
               </div>
+              <div  v-else-if="item.cache" class="w-100% pt-5px  cursor-pointer select-none h-55px "   @dblclick="setCurrentClipboard(item)">
+                <div class=" w-260px  flex items-center">
+                  <a-image
+                    width="28px"
+                    :src="`cdm-clipboard:///${iconDir()}/${item.cache.split('??::')[0].substring(item.cache.split('??::')[0].lastIndexOf('.') + 1)}.png`"
+                    :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
+
+                    :preview="false"
+                  />
+                  <div class="text-black text-bold ml-5px text-15px w-220px" @click="selectFile = item.cache.split('??::')[0]">
+                    <div class="text-truncate">{{item.cache.split('??::')[0].replace(/^.*[\\\/]/, '')}} <span v-if="item.cache.split('??::').length > 1">等{{item.cache.split('??::').length}}个文件</span></div>
+                    <a-tooltip :title="item.cache.replaceAll('??::', ', ')" :mouseEnterDelay="1">
+                      <div class="text-[gray] text-12px text-truncate">{{ item.cache.split('??::')[0] }}</div>
+                    </a-tooltip>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
-
-          </div>
-
-        </div>
-        </DynamicScroller>
-      </div>
-
-      <div class="w-290px bg-[#f6f7fa] border-1px rd-5px ml-5px my-card  overflow-auto">
-        <div class="w-full  " v-if="selectClipboard">
-          <div v-if="selectClipboard.type == 'text'" class="h-260px  p-5 overflow-auto  ">
-            {{selectClipboard.text}}
-          </div>
-
-          <div v-else-if="selectClipboard.type == 'img'"  >
-            <img-card :select-clipboard="selectClipboard"/>
-          </div>
-
-          <div v-else-if="selectClipboard.type == 'file'"  >
-            <file-card :select-clipboard="selectClipboard" v-model:selectFileIndex="selectFileIndex"/>
-          </div>
-
-
-          <menu-card  :select-clipboard="selectClipboard" :selectIndex="selectIndex" @setCurrentClipboard="setCurrentClipboard" @deleteData="deleteData" :selectFileIndex="selectFileIndex" />
-
+          </DynamicScroller>
         </div>
 
+        <div class="w-290px bg-[#f6f7fa] border-1px rd-5px ml-5px my-card  overflow-auto">
+          <div class="w-full  " v-if="selectClipboard">
+            <div v-if="selectClipboard.type == 'text'" class="h-260px  p-5 overflow-auto  ">
+              {{selectClipboard.text}}
+            </div>
 
+            <div v-else-if="selectClipboard.type == 'img'"  >
+              <img-card :select-clipboard="selectClipboard"/>
+            </div>
+
+            <div v-else-if="selectClipboard.type == 'file'"  >
+              <file-card :select-clipboard="selectClipboard" v-model:selectFileIndex="selectFileIndex"/>
+            </div>
+
+
+            <menu-card  :select-clipboard="selectClipboard" :selectIndex="selectIndex" @setCurrentClipboard="setCurrentClipboard" @deleteData="deleteData" :selectFileIndex="selectFileIndex" />
+
+          </div>
+
+
+        </div>
+
+      </template>
+      <div v-else class="w-100% h-100% flex justify-center items-center">
+        <a-empty ></a-empty>
       </div>
 
     </div>
@@ -160,11 +167,14 @@ const tabKey = ref('')
 const icon = ref('');
 const searchTimer = ref();
 
+const scrollView = ref();
+
 const currentClipboard = ref(); // 当前剪切板
 const selectClipboard = ref(); // 当前鼠标单击选项
 const selectIndex = ref(0);
 const selectFile = ref();
 const selectFileIndex = ref();
+
 
 const textList = computed(() => {
   return list.value.filter((item) => item.text)
@@ -184,8 +194,11 @@ const fileList = computed(() => {
 })
 
 const query = ref('');
+const limit = ref(20);
+const page =  ref(0);
 
 watch(query, (data) => {
+  page.value = 0;
    getData(data);
 }, {immediate: true})
 
@@ -194,6 +207,19 @@ watch(query, (data) => {
 function updateRow(ev) {
   console.log(ev);
 }
+
+
+//  滚动到底部
+function handleScroll(ev) {
+  const {scrollTop, clientHeight, scrollHeight} = ev.target
+  // console.log(scrollTop, clientHeight, scrollHeight)
+  if (scrollTop + clientHeight === scrollHeight){
+    page.value += 1;
+    getData();
+  }
+}
+
+
 
 
 onMounted( async() => {
@@ -245,19 +271,23 @@ function openFile(item) {
 function getData(keyword = undefined) {
   let params = {syncStatus: 0}
 
-  ipcRenderer.invoke('getClipboardList', params, keyword??undefined).then((res) => {
+  ipcRenderer.invoke('getClipboardList', params, keyword??undefined, limit.value, page.value * limit.value).then((res) => {
     console.log(res, 259);
-    list.value = res
-    currentClipboard.value = res[0];
-    selectClipboard.value = res[0];
-    selectIndex.value = 0;
+    if (page.value === 0 ) {
+      list.value = [];
+    }
+    list.value = list.value.concat(res);
+    if (page.value === 0 ) {
+      currentClipboard.value = res[0];
+      selectClipboard.value = res[0];
+      selectIndex.value = 0;
+    }
+    console.log(list.value.length);
+
+
   })
 }
 
-function searchData(ev) {
-  console.log(ev, query.value);
-
-}
 
 // 设置当前双击项为最新剪切项
 function setCurrentClipboard(row) {
@@ -344,6 +374,7 @@ const handleKeyDown = (event) => {
 
     },
     'F5': () => {
+      page.value = 0;
       getData();
     }
   }
@@ -368,7 +399,12 @@ function cellClickEvent(item, index) {
 
 }
 
-
+//搜索高亮
+function brightenKeyword(val, keyword) {
+  if(!query.value) return val;
+  // 匹配关键字正则
+  return val.replace(new RegExp(keyword, 'gi'), `<span class="text-[#ff5500]">${keyword}</span>`);
+}
 
 
 onUnmounted(() => {

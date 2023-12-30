@@ -210,8 +210,8 @@ export function getClipboardFiles () {
 
 
 // 获取剪切板列表
-export async function getClipboardList(event, params, keyword) {
-  const clipboardData =  getDbList( params, keyword);
+export async function getClipboardList(event, params, keyword, limit, offset) {
+  const clipboardData =  getDbList( params, keyword, limit, offset);
 
 
 

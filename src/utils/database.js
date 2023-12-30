@@ -148,12 +148,12 @@ export function getDB(hash) {
 }
 
 //  查询数据集合
-export function getDbList(data, keyword,opt = 'ORDER BY time DESC') {
+export function getDbList(data, keyword, limit, offset, opt = 'ORDER BY time DESC') {
   const keys = Object.keys(data);
   let sqlParams = '';
   // 左连接查询cache表
  const sqlJoin= '  LEFT OUTER JOIN Cache ON Cache.hash = Clipboard.hash ';
-
+  const limitStr = ` limit ${limit} offset ${offset} `;
   //拼接查询条件
   // for (let i = 0; i < keys.length; i++) {
   //   sqlParams += `Clipboard.${keys[i]} = '${data[keys[i]]}' `;
@@ -166,8 +166,8 @@ export function getDbList(data, keyword,opt = 'ORDER BY time DESC') {
 
 
   //const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
-  const sql2= `select *,Clipboard.hash,Clipboard.type, GROUP_CONCAT(Cache.size, '??::') as size,  GROUP_CONCAT(Cache.info, '??::') as info,  GROUP_CONCAT(Cache.file, '??::') as file,  GROUP_CONCAT(Cache.cache, '??::') as cache  from Clipboard   ${sqlJoin}    ${sqlParams} GROUP BY Clipboard.hash  ORDER BY Clipboard.time DESC;`;
-  //console.log(sql2, 120);
+  const sql2= `select *,Clipboard.hash,Clipboard.type, GROUP_CONCAT(Cache.size, '??::') as size,  GROUP_CONCAT(Cache.info, '??::') as info,  GROUP_CONCAT(Cache.file, '??::') as file,  GROUP_CONCAT(Cache.cache, '??::') as cache  from Clipboard   ${sqlJoin}    ${sqlParams} GROUP BY Clipboard.hash ORDER BY Clipboard.time DESC  ${limitStr}  ;`;
+  console.log(sql2, 120);
   const stmt = global.db.prepare(sql2);
   //console.log(stmt.all());
   return stmt.all();
