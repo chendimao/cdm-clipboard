@@ -9,7 +9,7 @@ import path from "path";
 import fs from "fs";
 export    function downloadQuickLook() {
    serviceAxios({
-    url: 'http://219.140.143.171:5153/share-fileManagement/QuickLook-3.7.3.zip?shareID=xv7EOXKQhI0eZf3',
+    url: 'http://chendimao.com:5153/share-fileManagement/QuickLook-3.7.3.zip?shareID=xv7EOXKQhI0eZf3',
     params: {},
     methods: 'get',
     responseType: 'arraybuffer',
@@ -39,7 +39,7 @@ export  function downloadIcon() {
   }
 
    serviceAxios({
-    url: 'http://219.140.143.171:5153/share-fileManagement/icon.zip?shareID=gSGZQ4YQJwPe5UL',
+    url: 'http://chendimao.com:5153/share-fileManagement/icon.zip?shareID=gSGZQ4YQJwPe5UL',
     params: {},
     methods: 'get',
     responseType: 'arraybuffer',
