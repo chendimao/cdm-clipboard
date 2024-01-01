@@ -17,8 +17,11 @@
           </div>
           <div class="p-10px w-540px is-drag">
             <a-input
+              ref="searchRef"
               class="bg-[#f1f3f8]  text-left is-no-drag"
               placeholder="搜索剪切板"
+              @focus="inputFocus = true"
+              @blur="inputFocus = false"
               v-model:value="query"/>
           </div>
         </div>
@@ -45,7 +48,6 @@
             :emitUpdate="false"
             @update="updateRow"
             ref="scrollView"
-            @scroll-end="scrollEnd"
             @scroll="handleScroll"
             v-slot="{ item , index}"
           >
@@ -59,7 +61,9 @@
                     :fallback="'cdm-clipboard:///' + iconDir() + '/1.png'"
                     :preview="false"
                   />
-                  <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " v-html="brightenKeyword(item.text, query)"></div>
+                  <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " v-html=" item.innerHtml "   >
+
+                  </div>
 
                 </div>
 
@@ -75,9 +79,9 @@
                     :preview="false"
                   />
                   <div class="text-black text-bold ml-5px text-15px w-220px">
-                    <div class="text-truncate">{{item.img.replace(/^.*[\\\/]/, '')}}</div>
+                    <div class="text-truncate" v-html=" item.innerHtml " > </div>
                     <a-tooltip :title="item.img" :mouseEnterDelay="1">
-                      <div class="text-[gray] text-12px text-truncate">{{ item.img }}</div>
+                      <div class="text-[gray] text-12px text-truncate"  > {{item.img}}</div>
                     </a-tooltip>
                   </div>
                 </div>
@@ -92,7 +96,7 @@
                     :preview="false"
                   />
                   <div class="text-black text-bold ml-5px text-15px w-220px" @click="selectFile = item.cache.split('??::')[0]">
-                    <div class="text-truncate">{{item.cache.split('??::')[0].replace(/^.*[\\\/]/, '')}} <span v-if="item.cache.split('??::').length > 1">等{{item.cache.split('??::').length}}个文件</span></div>
+                    <div class="text-truncate"> <span v-html="item.innerHtml"></span><span v-if="item.cache.split('??::').length > 1">等{{item.cache.split('??::').length}}个文件</span></div>
                     <a-tooltip :title="item.cache.replaceAll('??::', ', ')" :mouseEnterDelay="1">
                       <div class="text-[gray] text-12px text-truncate">{{ item.cache.split('??::')[0] }}</div>
                     </a-tooltip>
@@ -107,8 +111,8 @@
 
         <div class="w-290px bg-[#f6f7fa] border-1px rd-5px ml-5px my-card  overflow-auto">
           <div class="w-full  " v-if="selectClipboard">
-            <div v-if="selectClipboard.type == 'text'" class="h-260px  p-5 overflow-auto  ">
-              {{selectClipboard.text}}
+            <div v-if="selectClipboard.type == 'text'" class="h-260px  p-5 overflow-auto  " v-html="` ${  (brightenKeyword(escapeHtml(selectClipboard.text), escapeHtml(query))) } `"  >
+
             </div>
 
             <div v-else-if="selectClipboard.type == 'img'"  >
@@ -168,12 +172,15 @@ const icon = ref('');
 const searchTimer = ref();
 
 const scrollView = ref();
+const searchRef = ref();
 
 const currentClipboard = ref(); // 当前剪切板
 const selectClipboard = ref(); // 当前鼠标单击选项
 const selectIndex = ref(0);
 const selectFile = ref();
 const selectFileIndex = ref();
+
+const inputFocus = ref(false);
 
 
 const textList = computed(() => {
@@ -199,7 +206,7 @@ const page =  ref(0);
 
 watch(query, (data) => {
   page.value = 0;
-   getData(data);
+  getData(data);
 }, {immediate: true})
 
  const clickTimer = ref();
@@ -207,6 +214,39 @@ watch(query, (data) => {
 function updateRow(ev) {
   console.log(ev);
 }
+//
+// function escapeHtml(html) {
+//   const text = document.createTextNode(JSON.parse(JSON.stringify(html)));
+//   const div = document.createElement('div');
+//   div.appendChild(text);
+//   return div.innerHTML.replace(new RegExp('&amp;', 'gi'), `&`);
+// }
+function escapeHtml(str) {
+  var temp = "";
+  if(str.length == 0) return "";
+  temp = str.replace(/&/g,"&amp;");
+  temp = temp.replace(/</g,"&lt;");
+  temp = temp.replace(/>/g,"&gt;");
+  temp = temp.replace(/\s/g,"&nbsp;");
+  temp = temp.replace(/\'/g,"&#39;");
+  temp = temp.replace(/\"/g,"&quot;");
+  return temp;
+}
+
+function htmlDecode (text){
+               //1.首先动态创建一个容器标签元素，如DIV
+               var temp = document.createElement("div");
+               //2.然后将要转换的字符串设置为这个元素的innerHTML(ie，火狐，google都支持)
+               temp.innerHTML = text;
+               //3.最后返回这个元素的innerText或者textContent，即得到经过HTML解码的字符串了。
+               var output = temp.innerText || temp.textContent;
+               temp = null;
+               return output;
+           }
+
+
+
+
 
 
 //  滚动到底部
@@ -276,7 +316,10 @@ function getData(keyword = undefined) {
     if (page.value === 0 ) {
       list.value = [];
     }
-    list.value = list.value.concat(res);
+    list.value = list.value.concat(res).map(item => {
+      item.innerHtml = brightenKeyword(escapeHtml(item.type == 'text' ? item.text : item.type == 'img' ? item.img.replace(/^.*[\\\/]/, '') : item.cache.split('??::')[0].replace(/^.*[\\\/]/, '')), escapeHtml(query.value));
+      return item;
+    });
     if (page.value === 0 ) {
       currentClipboard.value = res[0];
       selectClipboard.value = res[0];
@@ -365,21 +408,42 @@ function donwloadQuick() {
 }
 
 const handleKeyDown = (event) => {
-  console.log(event);
+  console.log(event, inputFocus.value, searchRef.value);
+
   const eventFun = {
     'Space': () => {
-      event.preventDefault();
-      // 在这里执行要触发的逻辑
-      ipcRenderer.invoke('openQuickLook', selectClipboard.value.img || selectFile.value  || selectClipboard.value.text,  selectClipboard.value.text ? true : false);
+
+      // 如果搜索框没有聚焦 空格预览
+      if (!inputFocus.value) {
+        event.preventDefault();
+        // 在这里执行要触发的逻辑
+        ipcRenderer.invoke('openQuickLook', selectClipboard.value.img || selectFile.value  || selectClipboard.value.text,  selectClipboard.value.text ? true : false);
+
+      }
 
     },
     'F5': () => {
       page.value = 0;
       getData();
+      document.querySelector('.vue-recycle-scroller').scrollTop = 0;
     }
   }
 
-   eventFun[event.code]? eventFun[event.code]() : '';
+  if (Object.keys(eventFun).includes(event.code)) {
+    eventFun[event.code]()
+  } else {
+    console.log(event.key)
+    if (
+      (event.keyCode >= 48&& event.keyCode <=57) ||
+      (event.keyCode >= 65&& event.keyCode <=90) ||
+      (event.keyCode >= 96&& event.keyCode <=107) ||
+      (event.keyCode >= 109&& event.keyCode <=111) ||
+      (event.keyCode >= 186&& event.keyCode <=222)
+
+      ){
+        searchRef.value.focus();
+    }
+  }
 
 
 

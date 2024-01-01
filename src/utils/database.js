@@ -161,7 +161,7 @@ export function getDbList(data, keyword, limit, offset, opt = 'ORDER BY time DES
   // }
 
   if (keyword) {
-    sqlParams += `  where  text like '%${keyword}%' or Cache.img like '%${keyword}%' or Cache.file like'%${keyword}%' or Cache.cache like '%${keyword}%'`;
+    sqlParams += `  where  text like '%${keyword}%' or Cache.img like '%${keyword}%'  or Cache.file like '%${keyword}%'  or Cache.cache like '%${keyword}%'`;
   }
 
 

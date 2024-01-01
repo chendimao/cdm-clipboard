@@ -16,7 +16,7 @@ import {
 } from './common/index.js';
 import * as path from "path";
 import {downloadIcon, downloadQuickLook} from '../utils/plugins.js';
-
+import autoUpdater  from'../utils/update.js';
 
 function createWindow() {
   // Create the browser window.
@@ -114,7 +114,9 @@ if (!gotTheLock) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
   app.whenReady().then(() => {
-
+    if (process.env.NODE_ENV === 'production'){
+      autoUpdater.checkForUpdates();
+    }
 
     myWindow = createWindow();
     require("@electron/remote/main").enable(myWindow.webContents);

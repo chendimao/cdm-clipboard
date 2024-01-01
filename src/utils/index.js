@@ -136,4 +136,9 @@ export function createDir(dir) {
 
 }
 
+//字符串高亮
 
+export function highlight(str, keyword) {
+  const regex = new RegExp(keyword, 'gi');
+  return str.replace(regex, `<span class="text-[#ff5500]">${keyword}</span>`);
+}
