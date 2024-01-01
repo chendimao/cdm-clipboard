@@ -8,6 +8,12 @@ import {createDir, getDownLoadUrl} from "./index";
 import path from "path";
 import fs from "fs";
 export    function downloadQuickLook() {
+
+  if (fs.existsSync(global.pluginDir('quickLook'))){
+    return;
+  }
+
+
    serviceAxios({
     url: 'http://chendimao.com:5153/share-fileManagement/QuickLook-3.7.3.zip?shareID=xv7EOXKQhI0eZf3',
     params: {},

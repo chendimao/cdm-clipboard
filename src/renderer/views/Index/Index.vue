@@ -270,7 +270,7 @@ onMounted( async() => {
   ipcRenderer.on('setClipboard', (event, arg) => {
 
     if (arg) {
-
+      arg.innerHtml = brightenKeyword(escapeHtml(arg.type == 'text' ? arg.text : arg.type == 'img' ? arg.img.replace(/^.*[\\\/]/, '') : arg.cache.split('??::')[0].replace(/^.*[\\\/]/, '')), escapeHtml(query.value));
       list.value.unshift(arg);
         selectIndex.value = 0;
         selectClipboard.value = arg;
@@ -285,7 +285,7 @@ onMounted( async() => {
     //getData();
   })
   document.addEventListener('keydown', handleKeyDown);
-  donwloadQuick();
+//  donwloadQuick();
 })
 
 watch(currentClipboard, (data) => {
