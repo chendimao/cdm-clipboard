@@ -15,7 +15,7 @@ export    function downloadQuickLook() {
 
 
    serviceAxios({
-    url: 'http://chendimao.com:5153/share-fileManagement/QuickLook-3.7.3.zip?shareID=xv7EOXKQhI0eZf3',
+    url: 'http://down.chendimao.com/quickLook.zip',
     params: {},
     methods: 'get',
     responseType: 'arraybuffer',
@@ -45,7 +45,7 @@ export  function downloadIcon() {
   }
 
    serviceAxios({
-    url: 'http://chendimao.com:5153/share-fileManagement/icon.zip?shareID=gSGZQ4YQJwPe5UL',
+    url: 'http://down.chendimao.com/icon.zip',
     params: {},
     methods: 'get',
     responseType: 'arraybuffer',

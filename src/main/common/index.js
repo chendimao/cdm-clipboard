@@ -102,6 +102,8 @@ export function handleGlobal() {
   global.dbDir = (path = '') => join(dirname(process.execPath) + '\\data\\db\\', path);
   global.pluginDir = (path = '') => join(dirname(process.execPath) + '\\data\\plugins\\', path);
   global.fileIsExists = (path) => existsSync(path);
+
+
 }
 
 // 统一管理快捷键

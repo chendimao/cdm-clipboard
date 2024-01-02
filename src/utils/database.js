@@ -81,6 +81,7 @@ export function initDB(options = {}) {
         webdavPath varchar, -- Webdav路径
         bigTextToFile int DEFAULT 0, -- 是否将长文本转换为文件 1 转换 0 不转换
         textSize integer DEFAULT 10240, -- 转换文件上限大小 单位KB
+        dataPath  'C:\cdm-clipboard-data',
         info  varchar, -- 其他信息
           time varchar -- 修改时间
                                   )`
