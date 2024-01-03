@@ -14,29 +14,6 @@ const fs = require('fs')
 const path = require('path')
 import { BrowserWindow  } from 'electron'
 import crypto from 'crypto';
-export function downloadFileToFolder(   url, fileName, fileType) {
-  BrowserWindow.fromId(global.mainId).webContents.downloadURL(url);
-  BrowserWindow.fromId(global.mainId).webContents.session.once('will-download', (event, item, webContents) => {
-        //设置保存路径
-        const filePath = path.join(path.dirname(process.execPath), '\\download', `${fileName}.${fileType}`);
-        console.log(filePath);
-        item.setSavePath(filePath);
-        item.on('updated', (event, state) => {
-          if (state === 'interrupted') {
-            console.log('下载中断，可以继续');
-          } else if (state === 'progressing') {
-            if (item.isPaused()) {
-              console.log('下载暂停');
-            } else {
-              console.log(`byte:${item.getReceivedBytes()}`);
-              console.log(`ok：${item.getReceivedBytes() / item.getTotalBytes() * 100}`);
-            }
-          }
-        });
-
-    })
-}
-
 //将流转换为下载地址
 export function  getDownLoadUrl(fileName, fileType, data) {
   createDir(global.fileDir())

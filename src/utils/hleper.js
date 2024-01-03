@@ -1,7 +1,7 @@
 import {dirname, join} from 'path'
 import fs from 'fs'
 import { app } from 'electron'
-const dataPath = join(dirname(process.execPath) + '\\data\\db\\', 'data.json')
+const dataPath = join(app.getPath('userData') + '\\data\\db\\', 'data.json')
 
 export function getLocalData(key) {
   if (!fs.existsSync(dataPath)) {

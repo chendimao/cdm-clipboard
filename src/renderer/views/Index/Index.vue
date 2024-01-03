@@ -61,7 +61,7 @@
                     :fallback="'cdm-clipboard:///' + iconDir() + '/1.png'"
                     :preview="false"
                   />
-                  <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " v-html=" item.innerHtml "   >
+                  <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " v-html="item.innerHtml "   >
 
                   </div>
 
@@ -111,8 +111,9 @@
 
         <div class="w-290px bg-[#f6f7fa] border-1px rd-5px ml-5px my-card  overflow-auto">
           <div class="w-full  " v-if="selectClipboard">
-            <div v-if="selectClipboard.type == 'text'" class="h-260px  p-5 overflow-auto  " v-html="` ${  (brightenKeyword(escapeHtml(selectClipboard.text), escapeHtml(query))) } `"  >
-
+            <div v-if="selectClipboard.type == 'text'" class="h-260px  p-5 overflow-auto  " v-highlight   >
+              <div  v-html="brightenKeyword(hljs.highlightAuto(selectClipboard.text).value, escapeHtml(query))">
+              </div>
             </div>
 
             <div v-else-if="selectClipboard.type == 'img'"  >
@@ -122,7 +123,6 @@
             <div v-else-if="selectClipboard.type == 'file'"  >
               <file-card :select-clipboard="selectClipboard" v-model:selectFileIndex="selectFileIndex"/>
             </div>
-
 
             <menu-card  :select-clipboard="selectClipboard" :selectIndex="selectIndex" @setCurrentClipboard="setCurrentClipboard" @deleteData="deleteData" :selectFileIndex="selectFileIndex" />
 
@@ -152,6 +152,7 @@ import * as dayjs from "dayjs";
 import imgCard from './component/imgCard.vue';
 import fileCard from './component/fileCard.vue';
 import menuCard from './component/menuCard.vue';
+import hljs from "highlight.js/lib/core";
 
 require('dayjs/locale/zh-cn');
 dayjs.locale('zh-cn');
@@ -285,7 +286,6 @@ onMounted( async() => {
     //getData();
   })
   document.addEventListener('keydown', handleKeyDown);
-//  donwloadQuick();
 })
 
 watch(currentClipboard, (data) => {
@@ -403,9 +403,6 @@ const showFileDetail = (files) => {
   });
 };
 
-function donwloadQuick() {
-  ipcRenderer.invoke('downloadQuickLook');
-}
 
 const handleKeyDown = (event) => {
   console.log(event, inputFocus.value, searchRef.value);
@@ -424,8 +421,30 @@ const handleKeyDown = (event) => {
     },
     'F5': () => {
       page.value = 0;
+      query.value = '';
       getData();
       document.querySelector('.vue-recycle-scroller').scrollTop = 0;
+    },
+    'ArrowDown': () => {
+      if (selectIndex.value == list.value.length) {
+        selectIndex.value =  0 ;
+        selectClipboard.value = list.value[0];
+      } else {
+        selectIndex.value += 1;
+        selectClipboard.value = list.value[selectIndex.value];
+      }
+
+    },
+    'ArrowUp': () => {
+      if (selectIndex.value == 0) {
+        selectIndex.value =  list.value.length ;
+        selectClipboard.value = list.value[selectIndex.value];
+      } else {
+        selectIndex.value -= 1;
+        currentClipboard.value = list.value[selectIndex.value];
+        selectClipboard.value = list.value[selectIndex.value];
+      }
+
     }
   }
 
@@ -467,7 +486,7 @@ function cellClickEvent(item, index) {
 function brightenKeyword(val, keyword) {
   if(!query.value) return val;
   // 匹配关键字正则
-  return val.replace(new RegExp(keyword, 'gi'), `<span class="text-[#ff5500]">${keyword}</span>`);
+  return val.replace(new RegExp(keyword, 'gi'), `<span class="text-[red] bg-[#DCF89D]">${keyword}</span>`);
 }
 
 

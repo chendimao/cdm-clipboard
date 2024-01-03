@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="clipboard.db" uuid="af5e128a-9d7f-4254-90c4-f4a176a4eb67">
+    <data-source source="LOCAL" name="clipboard.db" uuid="d7aab9de-4947-4fd2-92d6-a1567dee7d9c">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/node_modules/electron/dist/data/db/clipboard.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$USER_HOME$/AppData/Roaming/cdm-clipboard/data/db/clipboard.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

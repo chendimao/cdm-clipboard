@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal" created-in="WS-231.9011.35">
-    <data-source name="clipboard.db" uuid="af5e128a-9d7f-4254-90c4-f4a176a4eb67">
+    <data-source name="clipboard.db" uuid="d7aab9de-4947-4fd2-92d6-a1567dee7d9c">
       <database-info product="SQLite" version="3.43.0" jdbc-version="4.2" driver-name="SQLite JDBC" driver-version="3.43.0.0" dbms="SQLITE" exact-version="3.43.0" exact-driver-version="3.43">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>

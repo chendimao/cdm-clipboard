@@ -1,5 +1,5 @@
 import {BrowserWindow, clipboard, globalShortcut, ipcMain, net,app,  protocol, shell} from 'electron';
-import {mkdirSync, unlinkSync, writeFileSync, writeFile, existsSync, unlink} from "fs";
+import {mkdirSync, unlinkSync, writeFileSync, writeFile, existsSync, unlink, lstatSync} from "fs";
 import {join, basename, dirname} from "path";
 import {exec} from 'child_process';
 import {deleteClipboard, getClipboardFiles, getClipboardList, isCopyFile, setCurrentClipboard} from "../clipboard";
@@ -26,7 +26,10 @@ export function copyPath (event, arg){
 
 // 删除文件
 export function deleteFile(path) {
-  existsSync(path) && unlinkSync(path);
+  if (lstatSync(path).isFile()) {
+    existsSync(path) && unlinkSync(path);
+  }
+
 }
 
 
@@ -36,17 +39,15 @@ export function openQuickLook(event, url, isTxt = false) {
   const isExist = existsSync(url);
   if (isExist) {
 
-    console.log(`${join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'QuickLook.exe')} ${url}`);
-    exec( `${join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'QuickLook.exe')} ${url}`, {})
+    exec( `${join(global.pluginDir('quickLook'), 'QuickLook.exe')} ${url}`, {})
   } else if (isTxt){
     console.log(isTxt,url, 33);
-    writeFileSync(join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'temp.txt'), url)
-    exec( `${join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'QuickLook.exe')} ${join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'temp.txt')}`, {})
+    writeFileSync(join(global.pluginDir('quickLook'), 'temp.txt'), url)
+    exec( `${join(global.pluginDir('quickLook'), 'QuickLook.exe')} ${join(global.pluginDir('quickLook'), 'temp.txt')}`, {})
   //  unlinkSync( join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'temp.txt'));
 
   }
 
-  console.log(join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'temp.txt', url ));
 
 
 }
@@ -93,14 +94,15 @@ export function handleEvent() {
 
 // 统一管理通用全局变量
 export function handleGlobal() {
+  console.log(app.getPath('userData'), 94);
   global.driveId = getDeviceId();
   global.exePath = dirname(process.execPath);
-  global.dataDir = (path = '') => join(dirname(process.execPath) + '\\data', path);
-  global.iconDir = (path = '') => join(dirname(process.execPath) + '\\data\\icon\\', path);
-  global.fileDir = (path = '') => join(dirname(process.execPath) + '\\data\\file\\', path);
-  global.tempDir = (path = '') => join(dirname(process.execPath) + '\\data\\temp\\', path);
-  global.dbDir = (path = '') => join(dirname(process.execPath) + '\\data\\db\\', path);
-  global.pluginDir = (path = '') => join(dirname(process.execPath) + '\\data\\plugins\\', path);
+  global.dataDir = (path = '') => join(app.getPath('userData') + '\\data', path);
+  global.iconDir = (path = '') => join(app.getPath('userData') + '\\data\\icon\\', path);
+  global.fileDir = (path = '') => join(app.getPath('userData') + '\\data\\file\\', path);
+  global.tempDir = (path = '') => join(app.getPath('userData') + '\\data\\temp\\', path);
+  global.dbDir = (path = '') => join(app.getPath('userData') + '\\data\\db\\', path);
+  global.pluginDir = (path = '') => join(app.getPath('userData') + '\\data\\plugins\\', path);
   global.fileIsExists = (path) => existsSync(path);
 
 

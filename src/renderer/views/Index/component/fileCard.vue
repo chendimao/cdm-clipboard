@@ -2,33 +2,10 @@
   <div class="h-260px">
 
     <div class="w-100% text-center ">
-      <div class="min-h-100px flex justify-center ">
-        <vxe-table
-          :show-header="false"
-          size="mini"
-          border="none"
-          :column-config="{resizable: true}"
-          :mouse-config="{selected: true}"
-          height="100px"
-          :data="tableData"
-          ref="xTable2"
-          @keydown-end="handleKeyDown"
-          @cell-click="cellClickEvent"
-          :row-class-name="'bg-[#f1f2f8]'"
-          :keyboard-config="{isArrow: true, isEnter: true}"
-          :scroll-y="{enabled: false}">
-          <vxe-column field="name" title="name"  width="270px"   >
-            <template #default="{row, rowIndex}" class="h-55px">
-              <div :class="{'file-active': currentIndex == rowIndex}" class="   p-5px cursor-pointer" >
-
-                 {{row.name.replace(/^.*[\\\/]/, '')}}
-
-              </div>
-
-            </template>
-          </vxe-column>
-
-        </vxe-table>
+      <div class="min-h-100px ">
+        <div v-for="(row, index) in tableData" @click="cellClickEvent(row, index)" :class="{'file-active': currentIndex == index}" class=" w-100% text-left h-33px  p-5px cursor-pointer" >
+          {{row.name.replace(/^.*[\\\/]/, '')}}
+        </div>
 <!--        <div v-for="item in selectClipboard.cache.split('??::')">-->
 <!--          {{item.cache.split('??::')[0].replace(/^.*[\\\/]/, '')}}-->
 <!--        </div>-->
@@ -109,17 +86,16 @@ const currentIndex = ref(0);
 watch(() => props.selectClipboard,(newVal, oldVal) =>{
   console.log(newVal);
   tableData.value = newVal.cache.split('??::').map(item => ({name: item, exists: fileIsExists(fileDir(item.replace(/^.*[\\\/]/, '')))}))
+  console.log(tableData.value);
   currentIndex.value = 0;
   currentFile.value = tableData.value[currentIndex.value];
 }, {deep: true, immediate: true})
 
 
-function cellClickEvent(ev) {
-  // clearTimeout(clickTimer.value);//清除第一次的单击事件
-  // clickTimer.value = setTimeout(function () {
-  console.log(ev)
-  currentFile.value = ev.data[ev.$rowIndex];
-  currentIndex.value = ev.$rowIndex;
+function cellClickEvent(row, index) {
+
+  currentFile.value = props.selectClipboard[index];
+  currentIndex.value = index;
   emits('update:selectFileIndex', currentIndex.value);
   // 单击事件的代码执行区域
   // ...

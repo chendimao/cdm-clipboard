@@ -1,8 +1,6 @@
 import {clipboard, ipcMain, BrowserWindow, BrowserView, shell, app, Notification} from 'electron';
 import {
   copyFileToCache,
-  downloadFileToFolder,
-  downloadFileToFolderNode,
   getDownLoadUrl,
   getFileHash, getHash,
   getRandomHash

@@ -48,9 +48,9 @@ const props = defineProps({
   }
 })
 
-watch(() => props.selectFileIndex, (data) => {
-  console.log(data);
-})
+// watch(() => props.selectClipboard, (data) => {
+//   console.log(data);
+// })
 
 
 const emits = defineEmits(['setCurrentClipboard', 'deleteData']);
@@ -66,7 +66,6 @@ const menuList = ref([
   {name: '复制文件', type: 'file',  keyDown: 'Ctrl+2',  key: 'copyFile', value: 4,icon: copyFile },
   {name: '打开目录', type: 'file',  keyDown: 'Ctrl+3',  key: 'openFilePath', value: 2,icon: folderOpen },
   {name: '复制目录', type: 'file',  keyDown: 'Ctrl+4',  key: 'copyPath', value: 3,icon: copyLink },
-  {name: '删除文件', type: 'file',  keyDown: 'Ctrl+5',  key: 'removeFile', value: 5,icon:clear },
   {name: '删除记录', type: 'file',  keyDown: 'Ctrl+5',  key: 'remove', value: 5,icon:clear },
   {name: '复制文本', type: 'text', keyDown: 'Ctrl+1',   key: 'copy', value: 4,icon: copyFile },
   {name: '删除记录', type: 'text', keyDown: 'Ctrl+2',   key: 'remove', value: 5,icon:clear },
@@ -128,7 +127,7 @@ function contextMenuClickEvent(key) {
       message.success('复制成功');
     },
     'copyPath': () => {
-      ipcRenderer.invoke('copyPath', selectClipboard.img || selectClipboard.cache.split('??::')[0])
+      ipcRenderer.invoke('copyPath', selectClipboard.img || selectClipboard.cache.split('??::')[props.selectFileIndex])
       message.success('复制成功');
     },
 

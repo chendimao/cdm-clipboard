@@ -21,6 +21,8 @@ nsis:
   createDesktopShortcut: always
   allowToChangeInstallationDirectory: true
   oneClick: false
+  warningsAsErrors: false
+  #include: build/nsis/uninstaller.nsh
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
