@@ -1,6 +1,6 @@
 {
   "name": "cdm-clipboard",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An Electron application with Vue and TypeScript",
   "main": "./out/main/index.js",
   "author": "chendimao.com",
@@ -80,6 +80,7 @@
     "vite": "^4.4.9",
     "vite-plugin-style-import": "^2.0.0",
     "vue": "^3.3.4",
+    "vue-cli-plugin-electron-builder": "^2.1.1",
     "vue-router": "^4.2.5",
     "vue-tsc": "^1.8.8",
     "vxe-table": "^4.5.14",

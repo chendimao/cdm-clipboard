@@ -4,9 +4,9 @@ import request from 'request'
 import fs from 'fs'
 import {electronApp, optimizer, is} from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import {readDir} from "./readDir";
 import {trayInit} from "./tray";
 import {initDB} from "../utils/database";
+
 
 
 require('@electron/remote/main').initialize();
@@ -67,6 +67,7 @@ function createWindow() {
   // 监听窗口被聚焦事件
   mainWindow.on('blur', () => {
     !is.dev && mainWindow.minimize();
+    mainWindow.setSkipTaskbar(true);
   });
 
   let display = screen.getPrimaryDisplay();
@@ -85,6 +86,8 @@ function createWindow() {
 
 }
 
+
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 // 程序单例模式
 let myWindow = null
@@ -123,14 +126,16 @@ if (!gotTheLock) {
     myWindow.openDevTools();
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron')
-    console.log(process.env.NODE_ENV, 126);
-   if (process.env.NODE_ENV === 'production'){
+
+
+
+   //if (process.env.NODE_ENV === 'production'){
 
       autoUpdateInit().then(res => {
 
       });
 
-   }
+  // }
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.
     // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -169,7 +174,11 @@ if (!gotTheLock) {
     // 初始化文件icon
     downloadIcon();
     // 初始化quickLook
-    downloadQuickLook();
+    if(process.platform == 'win32'){
+      console.log('这是windows系统');
+      downloadQuickLook();
+    }
+
 
 
 

@@ -70,7 +70,7 @@ export function initDB(options = {}) {
         autoStart integer DEFAULT 1, -- 开机自启动 1 自启动 0 不自启动
         maxCount integer DEFAULT 0, -- 最大缓存数量 0为不限制
         expiredTime integer DEFAULT 0, --  缓存过期时间 单位天 0为不限制
-        isFile integer DEFAULT 1, -- 是否记录文件 1 记录 0 不记录
+        isFile integer DEFAULT 1, -- 缓存方式  0 云端本地缓存 1 仅本地缓存 2 云端缓存 3 不缓存
         fileSize integer DEFAULT 100,  -- 记录文件上限大小 单位MB
         isCacheFile integer DEFAULT 1, -- 是否缓存文件 1 缓存 0 不缓存
         isNotice  integer DEFAULT 1, -- 是否开启通知 1 开启 0 不开启
@@ -81,7 +81,27 @@ export function initDB(options = {}) {
         webdavPath varchar, -- Webdav路径
         bigTextToFile int DEFAULT 0, -- 是否将长文本转换为文件 1 转换 0 不转换
         textSize integer DEFAULT 10240, -- 转换文件上限大小 单位KB
-        dataPath  '',
+        dataPath  '', -- 数据缓存地址
+        isMini: 0, -- 是否迷你模式 0 正常模式 1 迷你模式
+        isOffset: 0, -- 定位模式 0 居中靠右对齐 1 居中对齐 2 相对鼠标位置对齐
+        k0: 'Alt+Q', -- 快捷键 激活程序
+        k1: 'Alt+1', -- 快捷键1
+        k2: 'Alt+2', -- 快捷键2
+        k3: 'Alt+3', -- 快捷键3
+        k4: 'Alt+4', -- 快捷键4
+        k5: 'Alt+5', -- 快捷键5
+        k6: 'Alt+6', -- 快捷键6
+        k7: 'Alt+7', -- 快捷键7
+        k8: 'Alt+8', -- 快捷键8
+        k9: 'Alt+9', -- 快捷键9
+        k10: 'CommandOrControl+1', -- 快捷键10
+        k11: 'CommandOrControl+2', -- 快捷键11
+        k12: 'CommandOrControl+3', -- 快捷键12
+        k13: 'CommandOrControl+4', -- 快捷键13
+        k14: 'CommandOrControl+5', -- 快捷键14
+        k15: 'CommandOrControl+6', -- 快捷键15
+
+
         info  varchar, -- 其他信息
           time varchar -- 修改时间
                                   )`
@@ -89,8 +109,8 @@ export function initDB(options = {}) {
     const res = db.prepare(`select * from Config `).get();
 
     if (!res) {
-      const sql = `insert into Config (autoStart, maxCount, expiredTime, isFile, fileSize, info, time,isNotice, isWebdav,webdavUrl,webdavUser,webdavPass,webdavPath, bigTextToFile, textSize, isCacheFile)
-                values(1, 0, 0, 1, 100, '', '${dayjs().format('YYYY-MM-DD HH:mm:ss')}', 1, 0, '', '', '', '', 0, 10240, 1);`;
+      const sql = `insert into Config (autoStart, maxCount, expiredTime, isFile, fileSize, info, time,isNotice, isWebdav,webdavUrl,webdavUser,webdavPass,webdavPath, bigTextToFile, textSize, isCacheFile, isMini, isOffset)
+                values(1, 0, 0, 1, 100, '', '${dayjs().format('YYYY-MM-DD HH:mm:ss')}', 1, 0, '', '', '', '', 0, 10240, 1, 0, 0);`;
     //  console.log(sql, 93);
       const r = db.prepare(sql).run();
     }
@@ -168,7 +188,7 @@ export function getDbList(data, keyword, limit, offset, opt = 'ORDER BY time DES
 
   //const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
   const sql2= `select *,Clipboard.hash,Clipboard.type, GROUP_CONCAT(Cache.size, '??::') as size,  GROUP_CONCAT(Cache.info, '??::') as info,  GROUP_CONCAT(Cache.file, '??::') as file,  GROUP_CONCAT(Cache.cache, '??::') as cache  from Clipboard   ${sqlJoin}    ${sqlParams} GROUP BY Clipboard.hash ORDER BY Clipboard.time DESC  ${limitStr}  ;`;
-  console.log(sql2, 120);
+  //console.log(sql2, 120);
   const stmt = global.db.prepare(sql2);
   //console.log(stmt.all());
   return stmt.all();
@@ -188,9 +208,6 @@ export function updateDB(table, data, hash) {
   })
   dataSql = dataSql.slice(0, -1);
   dataStr = dataStr.slice(0, -1);
-
-
-
   const sql = `update ${table} set ${dataSql} where hash=?;`;
   const update = global.db.prepare(
     sql
@@ -239,6 +256,42 @@ export function execInsertSqlTransaction(table, data) {
   const res = insertData(data);
 
 }
+
+
+export  function getConfig() {
+
+  const sql = `select *  from Config`;
+
+  const stmt = global.db.prepare(
+    sql
+  );
+  return stmt.get();
+}
+
+
+
+// 更新数据
+export function updateDBId(table, data, id) {
+  let dataStr = '';
+  let dataSql = '';
+  Object.keys(data).forEach(key => {
+    dataSql += `${key} = ?` +   ','
+    dataStr += `${data[key]}` +   ','
+  })
+  dataSql = dataSql.slice(0, -1);
+  dataStr = dataStr.slice(0, -1);
+  console.log(Object.keys(data), dataSql, dataSql, 275);
+  const sql = `update ${table} set ${dataSql} where id=?;`;
+  //console.log(sql);
+  const update = global.db.prepare(
+    sql
+  );
+  // console.log(sql, 'update');
+  return update.run(dataStr, hash);
+}
+
+
+
 
 
 

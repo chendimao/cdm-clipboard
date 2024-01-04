@@ -1,8 +1,8 @@
-import {BrowserWindow, Menu, Tray, nativeImage} from 'electron'
+import {BrowserWindow, Menu, Tray, nativeImage, ipcMain} from 'electron'
 import {join, dirname} from "path";
 import {is} from "@electron-toolkit/utils";
-
-
+import CreateSettingWindow from './setting.js';
+import {handleSetting} from './common/index.js';
 
 export function trayInit() {
 
@@ -24,13 +24,26 @@ export function trayInit() {
 
     tray = new Tray(iconPath);
     const contextMenu = Menu.buildFromTemplate([
+      {
+        label: '设置',
+        click: handleSetting
+      },
         {
+            label: '重启',
+            click: function () {
+                // 退出
+                global.app.relaunch();
+                global.app.quit();
+            }
+        },{
             label: '退出',
             click: function () {
                 // 退出
                 global.app.quit();
             }
-        }
+        },
+
+
     ]);
 
   tray.on('click', () => {
@@ -43,6 +56,6 @@ export function trayInit() {
 
 
 
-    tray.setToolTip('这是一个托盘');
+    tray.setToolTip('云同步剪切板');
     tray.setContextMenu(contextMenu);
 }

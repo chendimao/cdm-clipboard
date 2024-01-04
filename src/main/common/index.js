@@ -6,6 +6,8 @@ import {deleteClipboard, getClipboardFiles, getClipboardList, isCopyFile, setCur
 import {downloadQuickLook} from "../../utils/plugins";
 import {getDeviceId, getDownLoadIcon} from "../../utils";
 import {iconList} from "../../utils/options";
+import CreateSettingWindow from "../setting";
+import {getConfig, updateDBId} from "../../utils/database";
 
 // 打开文件
 export function openFile (event, arg){
@@ -36,17 +38,36 @@ export function deleteFile(path) {
 // 使用quickLook预览文件
 export function openQuickLook(event, url, isTxt = false) {
   // isTxt = true，则为预览文本
-  const isExist = existsSync(url);
-  if (isExist) {
 
-    exec( `${join(global.pluginDir('quickLook'), 'QuickLook.exe')} ${url}`, {})
-  } else if (isTxt){
-    console.log(isTxt,url, 33);
-    writeFileSync(join(global.pluginDir('quickLook'), 'temp.txt'), url)
-    exec( `${join(global.pluginDir('quickLook'), 'QuickLook.exe')} ${join(global.pluginDir('quickLook'), 'temp.txt')}`, {})
-  //  unlinkSync( join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'temp.txt'));
 
-  }
+    const isExist = existsSync(url);
+    if (isExist) {
+      if(process.platform == 'win32'){
+      exec( `${join(global.pluginDir('quickLook'), 'QuickLook.exe')} ${url}`, {})
+      }
+      if(process.platform == 'darwin'){
+        BrowserWindow.fromId(global.mainId).previewFile(url);
+      }
+
+    } else if (isTxt){
+      writeFileSync(join(global.pluginDir('quickLook'), 'temp.txt'), url)
+
+      if(process.platform == 'win32'){
+        exec( `${join(global.pluginDir('quickLook'), 'QuickLook.exe')} ${join(global.pluginDir('quickLook'), 'temp.txt')}`, {})
+      }
+      if(process.platform == 'darwin'){
+        BrowserWindow.fromId(global.mainId).previewFile(join(global.pluginDir('quickLook'), 'temp.txt'));
+      }
+
+      //  unlinkSync( join(dirname(process.execPath), '\\data\\plugins\\quickLook\\', 'temp.txt'));
+
+    }
+
+
+
+
+
+
 
 
 
@@ -80,13 +101,28 @@ export function handleEvent() {
   // 使用quickLook预览文件
   ipcMain.handle('openQuickLook', openQuickLook);
 
+  // 获取配置
+  ipcMain.handle('getConfig', (ev) => {
+    const res = getConfig();
+    return res;
+  });
+
+  // 保存配置
+  ipcMain.handle('saveConfig', (ev, data) => {
+    console.log(data);
+    const d = JSON.parse(data);
+    const res = updateDBId('Config', d, d.id);
+   // const res = getConfig(JSON.parse(data));
+    //return res;
+  });
+
   // 最小化
   ipcMain.handle('handleMin', () => {
-    BrowserWindow.fromId(global.mainId).minimize();
+    global.settingWindow.minimize();
   })
   ipcMain.handle('handleClose', () => {
-    BrowserWindow.fromId(global.mainId).minimize();
-    BrowserWindow.fromId(global.mainId).setSkipTaskbar(true);
+    console.log(global.settingWindow);
+    global.settingWindow.close();
   })
 
 
@@ -165,6 +201,27 @@ export function regMyProtocol() {
   })
 
 }
+
+
+// 设置页面管理
+export function   handleSetting() {
+    const data = {
+      windowTitle: '设置',
+      inUrl: 'setting'
+    }
+    // 判断当前窗口是否已经存在， 存在的话 直接唤起
+    console.log(global['settingWindow'], 36);
+    if (global['settingWindow']) {
+
+      global['settingWindow'].show()
+    } else {
+      CreateSettingWindow(data);
+      global['settingWindow'].show()
+    }
+
+}
+
+//
 
 
 
