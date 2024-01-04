@@ -117,7 +117,15 @@ if (!gotTheLock) {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
   app.whenReady().then(() => {
+    // 通用全局变量管理
+    handleGlobal();
+// 事件通信处理
+    handleEvent();
+    // 初始化数据库
+    initDB();
 
+    // 注册自定义协议
+    regMyProtocol();
 
     myWindow = createWindow();
     require("@electron/remote/main").enable(myWindow.webContents);
@@ -126,7 +134,6 @@ if (!gotTheLock) {
     myWindow.openDevTools();
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron')
-
 
 
    //if (process.env.NODE_ENV === 'production'){
@@ -154,19 +161,9 @@ if (!gotTheLock) {
 
 
 
-    // 注册自定义协议
-    regMyProtocol();
+
     // 管理快捷键
     handleShortcut();
-
-    // 通用全局变量管理
-    handleGlobal();
-
-    // 事件通信处理
-    handleEvent();
-
-    // 初始化数据库
-    initDB();
 
     //托盘管理
     trayInit();

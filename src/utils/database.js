@@ -272,22 +272,22 @@ export  function getConfig() {
 
 // 更新数据
 export function updateDBId(table, data, id) {
-  let dataStr = '';
   let dataSql = '';
+  console.log(data,id, 277);
   Object.keys(data).forEach(key => {
-    dataSql += `${key} = ?` +   ','
-    dataStr += `${data[key]}` +   ','
+
+    dataSql += `${key} = '${ data[key]  }' ,`
   })
   dataSql = dataSql.slice(0, -1);
-  dataStr = dataStr.slice(0, -1);
-  console.log(Object.keys(data), dataSql, dataSql, 275);
-  const sql = `update ${table} set ${dataSql} where id=?;`;
-  //console.log(sql);
+
+  const sql = `update ${table} set ${dataSql} where id = ${id};`;
+  //const sql = `update Config set maxCount = '${data.maxCount}' where id= 1;`;
+  console.log(sql);
   const update = global.db.prepare(
     sql
   );
   // console.log(sql, 'update');
-  return update.run(dataStr, hash);
+  return update.run();
 }
 
 

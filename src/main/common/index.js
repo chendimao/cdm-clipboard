@@ -109,12 +109,28 @@ export function handleEvent() {
 
   // 保存配置
   ipcMain.handle('saveConfig', (ev, data) => {
-    console.log(data);
-    const d = JSON.parse(data);
-    const res = updateDBId('Config', d, d.id);
+    const jData =JSON.parse(data);
+    const id = jData.id;
+    const d = {};
+      Object.keys(jData).forEach(key => {
+        d[key] = jData[key] == null ? '' : jData[key];
+    })
+      delete d.id;
+    const res = updateDBId('Config', d, id);
+    console.log(res, 120);
    // const res = getConfig(JSON.parse(data));
-    //return res;
+    return res;
   });
+
+  // 浏览器打开网页
+  ipcMain.handle('toLink', (ev, link) => {
+    shell.openExternal(link)
+  })
+
+  // 获取系统版本
+  ipcMain.handle('getVersion',(ev, data) => {
+    return app.getVersion();
+  })
 
   // 最小化
   ipcMain.handle('handleMin', () => {
@@ -147,12 +163,14 @@ export function handleGlobal() {
 // 统一管理快捷键
 export function handleShortcut() {
 
+  const configData =  getConfig();
+
   globalShortcut.register('CommandOrControl+Shift+L', () => {
     BrowserWindow.fromId(global.mainId).toggleDevTools()
   })
+  console.log()
 
-
-  globalShortcut.register('Alt+R', () => {
+  globalShortcut.register( configData.k0 ? configData.k0 :'Alt+R', () => {
     //判断是否最小化
     if (!BrowserWindow.fromId(global.mainId).isMinimized()) {
       BrowserWindow.fromId(global.mainId).minimize();
@@ -161,6 +179,20 @@ export function handleShortcut() {
       BrowserWindow.fromId(global.mainId).restore();
     }
   })
+
+    const copyShortcut = [configData.k1, configData.k2, configData.k3, configData.k4, configData.k5];
+
+  copyShortcut.forEach((item, index) => {
+    globalShortcut.register( item, () => {
+      console.log(index, 187);
+      BrowserWindow.fromId(global.mainId).webContents.send('handleCopyShortcut', index);
+    })
+  })
+
+
+
+
+
 
 }
 

@@ -280,6 +280,14 @@ onMounted( async() => {
     }
   })
 
+  // 监听快捷键设置当前剪切板
+  ipcRenderer.on('handleCopyShortcut', (event, arg) => {
+    if (arg) {
+      setCurrentClipboard(list.value[arg]);
+    }
+  
+  })
+
   ipcRenderer.on('updateData',  (event, arg) =>{
     console.log(arg, 247);
     updateData(arg);
@@ -334,11 +342,7 @@ function getData(keyword = undefined) {
 
 // 设置当前双击项为最新剪切项
 function setCurrentClipboard(row) {
-  console.time('test');
   updateData(row);
-  console.timeEnd('test');
-
-
 }
 
 

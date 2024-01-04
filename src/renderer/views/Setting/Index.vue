@@ -268,6 +268,11 @@
 
 
           </div>
+
+          <div class="h-50px flex justify-center items-center mr-20px ">
+            <a-button   class="w-100px mr-10px" @click="getConfig">重置</a-button>
+            <a-button type="primary" class="w-100px" @click="handleSave">保存</a-button>
+          </div>
         </a-tab-pane>
         <a-tab-pane key="3" tab="关于" force-render>
 
@@ -276,7 +281,7 @@
                 <a-image :src="logo" width="100px"/>
               </div>
               <div class="mt-10px">
-                <span class="text-20px font-bold">云同步剪切板</span><span class="ml-5px color-[gray] text-15px">1.0.3</span>
+                <span class="text-20px font-bold">云同步剪切板</span><span class="ml-5px color-[gray] text-15px"  >{{version}}</span>
               </div>
               <div class="p-10px color-gray">
                 一款免费开源的剪切板同步软件，支持多设备同步剪切板
@@ -284,10 +289,10 @@
             <a-divider/>
 
             <div class="flex justify-between w-75%">
-              <div class="m-5px">官网</div>
-              <div class="m-5px">Github</div>
-              <div class="m-5px">反馈交流群</div>
-              <div class="m-5px">用户协议</div>
+                  <a-button type="link" class="m-5px"  @click="toLink('http://www.chendimao.com')">官网</a-button>
+                  <a-button type="link" class="m-5px" @click="toLink('http://github.com/chendimao/cdm-clipboard')">Github</a-button>
+                  <a-button type="link" class="m-5px" @click="toLink('http://www.chendimao.com')">反馈交流群</a-button>
+<!--              <a-button type="link" class="m-5px" @click="toLink('')">用户协议</a-button>-->
             </div>
 
           </div>
@@ -314,21 +319,28 @@ import {message} from "ant-design-vue";
 const { ipcRenderer } = window.electron
 const activeKey = ref('1');
 const configData = ref();
-
+const version = ref();
 
 onMounted(() => {
   getConfig();
+  getVersion();
 })
 
 
 function getConfig() {
   ipcRenderer.invoke('getConfig').then(res => {
     configData.value = res;
+    message.success('获取配置成功');
   })
 }
 
 function handleSave() {
   ipcRenderer.invoke('saveConfig', JSON.stringify(configData.value)).then(res => {
+    console.log(res);
+
+    if (res?.changes === 1) {
+      message.success('保存配置成功');
+    }
 
   })
 }
@@ -383,6 +395,18 @@ function min() {
 function close() {
   ipcRenderer.invoke('handleClose');
 }
+
+function toLink(link) {
+  ipcRenderer.invoke('toLink', link);
+}
+
+function getVersion() {
+  ipcRenderer.invoke('getVersion').then(res => {
+    console.log(res);
+    version.value = res;
+  })
+}
+
 </script>
 <style scoped lang="less">
 
