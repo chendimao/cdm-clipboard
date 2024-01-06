@@ -82,25 +82,39 @@ export function initDB(options = {}) {
         bigTextToFile int DEFAULT 0, -- 是否将长文本转换为文件 1 转换 0 不转换
         textSize integer DEFAULT 10240, -- 转换文件上限大小 单位KB
         dataPath  '', -- 数据缓存地址
-        isMini: 0, -- 是否迷你模式 0 正常模式 1 迷你模式
-        isOffset: 0, -- 定位模式 0 居中靠右对齐 1 居中对齐 2 相对鼠标位置对齐
-        k0: 'Alt+Q', -- 快捷键 激活程序
-        k1: 'Alt+1', -- 快捷键1
-        k2: 'Alt+2', -- 快捷键2
-        k3: 'Alt+3', -- 快捷键3
-        k4: 'Alt+4', -- 快捷键4
-        k5: 'Alt+5', -- 快捷键5
-        k6: 'Alt+6', -- 快捷键6
-        k7: 'Alt+7', -- 快捷键7
-        k8: 'Alt+8', -- 快捷键8
-        k9: 'Alt+9', -- 快捷键9
-        k10: 'CommandOrControl+1', -- 快捷键10
-        k11: 'CommandOrControl+2', -- 快捷键11
-        k12: 'CommandOrControl+3', -- 快捷键12
-        k13: 'CommandOrControl+4', -- 快捷键13
-        k14: 'CommandOrControl+5', -- 快捷键14
-        k15: 'CommandOrControl+6', -- 快捷键15
-
+        isMini integer DEFAULT 0, -- 是否迷你模式 0 正常模式 1 迷你模式
+        isOffset  integer DEFAULT 0, -- 定位模式 0 居中靠右对齐 1 居中对齐 2 相对鼠标位置对齐
+        k0 varchar DEFAULT  'Alt+Q', -- 快捷键 激活程序
+        k1 varchar DEFAULT  'Alt+1', -- 快捷键1
+        k2 varchar DEFAULT  'Alt+2', -- 快捷键2
+        k3 varchar DEFAULT  'Alt+3', -- 快捷键3
+        k4 varchar DEFAULT  'Alt+4', -- 快捷键4
+        k5 varchar DEFAULT  'Alt+5', -- 快捷键5
+        k6 varchar DEFAULT  'Alt+6', -- 快捷键6
+        k7 varchar DEFAULT  'Alt+7', -- 快捷键7
+        k8 varchar DEFAULT  'Alt+8', -- 快捷键8
+        k9 varchar DEFAULT  'Alt+9', -- 快捷键9
+        k10 varchar DEFAULT 'CommandOrControl+1', -- 快捷键10
+        k11 varchar DEFAULT 'CommandOrControl+2', -- 快捷键11
+        k12 varchar DEFAULT 'CommandOrControl+3', -- 快捷键12
+        k13 varchar DEFAULT 'CommandOrControl+4', -- 快捷键13
+        k14 varchar DEFAULT 'CommandOrControl+5', -- 快捷键14
+        k15 varchar DEFAULT 'CommandOrControl+6', -- 快捷键15
+        b1 varchar DEFAULT '', -- 备用字段
+        b2 varchar DEFAULT '', -- 备用字段
+        b3 varchar DEFAULT '', -- 备用字段
+        b4 varchar DEFAULT '', -- 备用字段
+        b5 varchar DEFAULT '', -- 备用字段
+        b6 varchar DEFAULT '', -- 备用字段
+        b7 varchar DEFAULT '', -- 备用字段
+        b8 varchar DEFAULT '', -- 备用字段
+        b9 varchar DEFAULT '', -- 备用字段
+        b10 varchar DEFAULT '', -- 备用字段
+        b11 varchar DEFAULT '', -- 备用字段
+        b12 varchar DEFAULT '', -- 备用字段
+        b13 varchar DEFAULT '', -- 备用字段
+        b14 varchar DEFAULT '', -- 备用字段
+        b15 varchar DEFAULT '', -- 备用字段
 
         info  varchar, -- 其他信息
           time varchar -- 修改时间
@@ -169,7 +183,7 @@ export function getDB(hash) {
 }
 
 //  查询数据集合
-export function getDbList(data, keyword, limit, offset, opt = 'ORDER BY time DESC') {
+export function getDbList(data, keyword, type, limit, offset, opt = 'ORDER BY time DESC') {
   const keys = Object.keys(data);
   let sqlParams = '';
   // 左连接查询cache表
@@ -182,13 +196,19 @@ export function getDbList(data, keyword, limit, offset, opt = 'ORDER BY time DES
   // }
 
   if (keyword) {
-    sqlParams += `  where  text like '%${keyword}%' or Cache.img like '%${keyword}%'  or Cache.file like '%${keyword}%'  or Cache.cache like '%${keyword}%'`;
+    sqlParams += `  where  (text like '%${keyword}%' or Cache.img like '%${keyword}%'  or Cache.file like '%${keyword}%'  or Cache.cache like '%${keyword}%')  `;
   }
+
+  // if (type) {
+  //
+  //   sqlParams +=keyword ?  ` ${type ? ' and (Cache.img like %' + type + '% or' + 'Cache.file like %' + type + '%' + '% or' + 'Cache.cache like %' + type + '%' + ') ': ''} ` : ` where Clipboard.type = '${type}'`;
+  // }
+
 
 
   //const sql = `select *, ${table}.hash from ${table} ${sqlJoin} where ${sqlParams} ${opt};`;
   const sql2= `select *,Clipboard.hash,Clipboard.type, GROUP_CONCAT(Cache.size, '??::') as size,  GROUP_CONCAT(Cache.info, '??::') as info,  GROUP_CONCAT(Cache.file, '??::') as file,  GROUP_CONCAT(Cache.cache, '??::') as cache  from Clipboard   ${sqlJoin}    ${sqlParams} GROUP BY Clipboard.hash ORDER BY Clipboard.time DESC  ${limitStr}  ;`;
-  //console.log(sql2, 120);
+  // console.log(sql2, 120);
   const stmt = global.db.prepare(sql2);
   //console.log(stmt.all());
   return stmt.all();

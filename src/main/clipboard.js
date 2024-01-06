@@ -20,9 +20,13 @@ import logger from '../utils/logs.js';
 import {deleteFile, getFileIcon} from "./common";
 import {existsSync, lstat, lstatSync, statSync} from "fs";
 import dayjs from "dayjs";
+import {GlobalKeyboardListener} from "node-global-key-listener";
 const clipboardListener = require('clipboard-event');
 const robot = require('robotjs');
 const { betterClipboard } = require('better-clipboard')
+
+
+
 
 let params =  {text: '', html: '', file: '', rtf: '', img: '', cache: ''};
 
@@ -167,8 +171,8 @@ export function getClipboardFiles () {
 
 
   }
-  // 禁止复制空格
-  if (!hash) {
+  // 排除意外情况
+  if (!hash || !type) {
     return;
   }
   if (type === 'text' &&  !params.text.trim()  ) {
@@ -208,9 +212,9 @@ export function getClipboardFiles () {
 
 
 // 获取剪切板列表
-export async function getClipboardList(event, params, keyword, limit, offset) {
-  const clipboardData =  getDbList( params, keyword, limit, offset);
-
+export async function getClipboardList(event, params, keyword, type,  limit, offset) {
+  const clipboardData = getDbList(params, keyword, type, limit, offset);
+  const v = new GlobalKeyboardListener();
 
 
 

@@ -170,7 +170,7 @@ export function handleShortcut() {
   })
   console.log()
 
-  globalShortcut.register( configData.k0 ? configData.k0 :'Alt+R', () => {
+  globalShortcut.register( configData.k0 ? configData.k0 :'R', () => {
     //判断是否最小化
     if (!BrowserWindow.fromId(global.mainId).isMinimized()) {
       BrowserWindow.fromId(global.mainId).minimize();

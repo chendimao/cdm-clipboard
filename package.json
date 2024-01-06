@@ -1,6 +1,6 @@
 {
   "name": "cdm-clipboard",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An Electron application with Vue and TypeScript",
   "main": "./out/main/index.js",
   "author": "chendimao.com",
@@ -68,6 +68,7 @@
     "eslint-plugin-vue": "^9.17.0",
     "highlight.js": "^11.9.0",
     "less": "^4.2.0",
+    "node-global-key-listener": "^0.1.1",
     "node-gyp": "^10.0.1",
     "node-machine-id": "^1.1.12",
     "prettier": "^3.0.2",
@@ -87,7 +88,7 @@
     "xe-utils": "^3.5.14"
   },
   "volta": {
-    "node": "18.18.0",
-    "npm": "10.2.5"
+    "node": "16.14.0",
+    "npm": "9.9.2"
   }
 }

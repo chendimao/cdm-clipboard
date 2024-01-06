@@ -22,7 +22,16 @@
               placeholder="搜索剪切板"
               @focus="inputFocus = true"
               @blur="inputFocus = false"
-              v-model:value="query"/>
+              v-model:value="query">
+<!--              <template #addonAfter>-->
+<!--                <a-select v-model:value="queryType" style="width: 80px">-->
+<!--                  <a-select-option :value="''">全部</a-select-option>-->
+<!--                  <a-select-option :value="'text'">文本</a-select-option>-->
+<!--                  <a-select-option :value="'file'">文件</a-select-option>-->
+<!--                  <a-select-option :value="'img'">图片</a-select-option>-->
+<!--                </a-select>-->
+<!--              </template>-->
+            </a-input>
           </div>
         </div>
         <!--        <div class="w-40px h-40px flex items-center hover:bg-[#eee]" @click="min" >-->
@@ -51,7 +60,7 @@
             @scroll="handleScroll"
             v-slot="{ item , index}"
           >
-            <div :class="{'active': selectIndex == index}" @click="cellClickEvent(item, index)" class="pl-5px w-280px hover:bg-[#d5d5d8] border-1px border-solid border-[#f1f2f8] border-l-2px border-l-solid border-l-[#f1f2f8] border-r-2px border-r-solid border-r-[#f1f2f8]"  >
+            <div :class="{'active': selectIndex == index}" :ref="(el) => itemRefs[index] = el"  @click="cellClickEvent(item, index)" class="pl-5px w-280px hover:bg-[#d5d5d8] border-1px border-solid border-[#f1f2f8] border-l-2px border-l-solid border-l-[#f1f2f8] border-r-2px border-r-solid border-r-[#f1f2f8]"  >
               <div v-if="item.text" class="text-black text-truncate select-none w-100%   cursor-pointer  h-55px" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item )">
 
                 <div class=" w-260px  flex items-center ">
@@ -171,6 +180,7 @@ const list = ref([])
 const tabKey = ref('')
 const icon = ref('');
 const searchTimer = ref();
+const itemRefs = ref([]);
 
 const scrollView = ref();
 const searchRef = ref();
@@ -202,12 +212,14 @@ const fileList = computed(() => {
 })
 
 const query = ref('');
+const queryType = ref('');
 const limit = ref(20);
 const page =  ref(0);
 
-watch(query, (data) => {
+watch([query, queryType], (data) => {
+  console.log(data);
   page.value = 0;
-  getData(data);
+  getData(data[0], data[1]);
 }, {immediate: true})
 
  const clickTimer = ref();
@@ -267,7 +279,7 @@ onMounted( async() => {
   // getClipboardList()
   // icon.value = (await app.getFileIcon('F:\\www\\cdm-clipboard\\node_modules\\electron\\dist\\data\\db\\clipboard.db')).toDataURL();
   //console.log(await getIcon('txt'))
-  getData()
+
   ipcRenderer.on('setClipboard', (event, arg) => {
 
     if (arg) {
@@ -285,7 +297,7 @@ onMounted( async() => {
     if (arg) {
       setCurrentClipboard(list.value[arg]);
     }
-  
+
   })
 
   ipcRenderer.on('updateData',  (event, arg) =>{
@@ -316,10 +328,10 @@ function openFile(item) {
 
 
 
-function getData(keyword = undefined) {
+function getData(keyword = undefined, type = undefined) {
   let params = {syncStatus: 0}
 
-  ipcRenderer.invoke('getClipboardList', params, keyword??undefined, limit.value, page.value * limit.value).then((res) => {
+  ipcRenderer.invoke('getClipboardList', params, keyword??undefined, type, limit.value, page.value * limit.value).then((res) => {
     console.log(res, 259);
     if (page.value === 0 ) {
       list.value = [];
@@ -430,25 +442,20 @@ const handleKeyDown = (event) => {
       document.querySelector('.vue-recycle-scroller').scrollTop = 0;
     },
     'ArrowDown': () => {
-      if (selectIndex.value == list.value.length) {
-        selectIndex.value =  0 ;
-        selectClipboard.value = list.value[0];
-      } else {
+      if (selectIndex.value !== list.value.length) {
         selectIndex.value += 1;
         selectClipboard.value = list.value[selectIndex.value];
-      }
 
+      }
+      itemRefs.value[selectIndex.value].scrollIntoView(false);
     },
     'ArrowUp': () => {
-      if (selectIndex.value == 0) {
-        selectIndex.value =  list.value.length ;
-        selectClipboard.value = list.value[selectIndex.value];
-      } else {
+      if (selectIndex.value !== 0) {
         selectIndex.value -= 1;
         currentClipboard.value = list.value[selectIndex.value];
         selectClipboard.value = list.value[selectIndex.value];
       }
-
+      itemRefs.value[selectIndex.value].scrollIntoView(false);
     }
   }
 
@@ -461,8 +468,8 @@ const handleKeyDown = (event) => {
       (event.keyCode >= 65&& event.keyCode <=90) ||
       (event.keyCode >= 96&& event.keyCode <=107) ||
       (event.keyCode >= 109&& event.keyCode <=111) ||
-      (event.keyCode >= 186&& event.keyCode <=222)
-
+      (event.keyCode >= 186&& event.keyCode <=222) ||
+      event.keyCode == 8
       ){
         searchRef.value.focus();
     }
@@ -532,5 +539,9 @@ onUnmounted(() => {
   -webkit-app-region: no-drag;
 }
 
+::v-deep(.ant-input-group-addon) {
+  background: #f1f3f8 !important;
+  border: none !important;
+}
 
 </style>
