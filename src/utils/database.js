@@ -8,6 +8,7 @@ export function initDB(options = {}) {
   createDir(global.dbDir())
 
   const db = new Database(global.dbDir(`clipboard.db`), options);
+  global.db = db;
   try {
     console.log('created');
       db.exec(
@@ -84,6 +85,7 @@ export function initDB(options = {}) {
         dataPath  '', -- 数据缓存地址
         isMini integer DEFAULT 0, -- 是否迷你模式 0 正常模式 1 迷你模式
         isOffset  integer DEFAULT 0, -- 定位模式 0 居中靠右对齐 1 居中对齐 2 相对鼠标位置对齐
+        isDoubKey integer DEFAULT 0, -- 是否使用双击单键激活程序 0 否 1 是
         k0 varchar DEFAULT  'Alt+Q', -- 快捷键 激活程序
         k1 varchar DEFAULT  'Alt+1', -- 快捷键1
         k2 varchar DEFAULT  'Alt+2', -- 快捷键2
@@ -120,7 +122,7 @@ export function initDB(options = {}) {
           time varchar -- 修改时间
                                   )`
       );
-    const res = db.prepare(`select * from Config `).get();
+    const res = getConfig();
 
     if (!res) {
       const sql = `insert into Config (autoStart, maxCount, expiredTime, isFile, fileSize, info, time,isNotice, isWebdav,webdavUrl,webdavUser,webdavPass,webdavPath, bigTextToFile, textSize, isCacheFile, isMini, isOffset)
@@ -136,8 +138,10 @@ export function initDB(options = {}) {
       console.log("Config表已经存在");
     }
   }
-  global.userConfig = db.prepare(`select * from Config `).get();
-  global.db = db;
+  global.Config = getConfig();
+
+  global.clipboardCount = getClipboardCount();
+  console.log(global.clipboardCount, 143);
 }
 
 // 插入数据
@@ -158,6 +162,7 @@ export function insertDB(data) {
     sql
   );
    const res = insert.run(data);
+   global.clipboardCount += 1;
   return res;
   // const insertMany = this.db.transaction((cats) => {
   //   for (const cat of cats) {
@@ -308,6 +313,16 @@ export function updateDBId(table, data, id) {
   );
   // console.log(sql, 'update');
   return update.run();
+}
+
+// 获取Clipboard表条数
+export function getClipboardCount() {
+
+   const sql = `select count(hash) as count from Clipboard`;
+  const stmt = global.db.prepare(
+    sql
+  );
+  return stmt.get().count;
 }
 
 

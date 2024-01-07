@@ -9,6 +9,12 @@ import {iconList} from "../../utils/options";
 import CreateSettingWindow from "../setting";
 import {getConfig, updateDBId} from "../../utils/database";
 
+import rubick from 'rubick-native';
+import dayjs from "dayjs";
+
+let dblTimer = [];
+
+
 // 打开文件
 export function openFile (event, arg){
   console.log(arg);
@@ -101,9 +107,13 @@ export function handleEvent() {
   // 使用quickLook预览文件
   ipcMain.handle('openQuickLook', openQuickLook);
 
+  // 重新设置快捷键
+  ipcMain.handle('handleShortcut', handleShortcut);
+
   // 获取配置
   ipcMain.handle('getConfig', (ev) => {
     const res = getConfig();
+    global.Config = res;
     return res;
   });
 
@@ -117,8 +127,22 @@ export function handleEvent() {
     })
       delete d.id;
     const res = updateDBId('Config', d, id);
-    console.log(res, 120);
+
+
+    // 处理开机自启
+    handleAutoRun(!!jData.autoStart);
+
+
+
+
+
+    global.Config = jData;
    // const res = getConfig(JSON.parse(data));
+
+
+
+
+
     return res;
   });
 
@@ -141,6 +165,15 @@ export function handleEvent() {
     global.settingWindow.close();
   })
 
+  // 处理粘贴事件
+  ipcMain.handle('handlePaste', handlePaste)
+
+  // 设置双击快捷键
+  ipcMain.handle('setDblKey', ev =>{
+    return global.dblKey;
+  })
+
+
 
 }
 
@@ -160,40 +193,91 @@ export function handleGlobal() {
 
 }
 
+// 绑定双击快捷键
+export function handleDoubleShortcut() {
+
+    rubick.onInputEvent(ev => {
+      // 监听双击激活程序
+      if (ev.event.type === 'KeyRelease' && global.Config?.isDoubKey === 1 ) {
+        if (dblTimer.length == 0) {
+          dblTimer.push({time:dayjs().valueOf(), value: ev.event.value})
+        } else if (dblTimer.length == 1) {
+          dblTimer.push({time: dayjs().valueOf(), value: ev.event.value})
+        }else if (dblTimer.length == 2) {
+          dblTimer.shift();
+          dblTimer.push({time: dayjs().valueOf(), value: ev.event.value})
+
+        }
+
+        if ( dblTimer.length == 2 &&  dblTimer[1].time - dblTimer[0].time < 1000 && dblTimer[1].value == dblTimer[0].value ) {
+
+          global.settingWindow ? global.settingWindow.webContents.send('onDblKey', dblTimer) : '';
+          if(global.Config.b1 ==  dblTimer[0].value &&  global.Config.b1 ==  dblTimer[1].value) {
+            //判断是否最小化
+              if (!global.mainWindow.isMinimized()) {
+                global.mainWindow.minimize();
+              // BrowserWindow.fromId(global.mainId).hide();
+            } else {
+                global.mainWindow.restore();
+            }
+          }
+
+
+          dblTimer = [];
+        }
+
+
+
+      }
+    })
+
+
+}
+
+
 // 统一管理快捷键
 export function handleShortcut() {
 
+  globalShortcut.unregisterAll();
   const configData =  getConfig();
+
 
   globalShortcut.register('CommandOrControl+Shift+L', () => {
     BrowserWindow.fromId(global.mainId).toggleDevTools()
   })
-  console.log()
+  console.log(configData);
 
-  globalShortcut.register( configData.k0 ? configData.k0 :'R', () => {
-    //判断是否最小化
-    if (!BrowserWindow.fromId(global.mainId).isMinimized()) {
-      BrowserWindow.fromId(global.mainId).minimize();
-      // BrowserWindow.fromId(global.mainId).hide();
-    } else {
-      BrowserWindow.fromId(global.mainId).restore();
-    }
-  })
+  if (configData.isDoubKey == 0) {
+    globalShortcut.register( configData.k0 ? configData.k0 :'CommandOrControl+R', () => {
+      //判断是否最小化
+      if (!BrowserWindow.fromId(global.mainId).isMinimized()) {
+        BrowserWindow.fromId(global.mainId).minimize();
+        // BrowserWindow.fromId(global.mainId).hide();
+      } else {
+        BrowserWindow.fromId(global.mainId).restore();
+      }
+    })
+  }
+
+
 
     const copyShortcut = [configData.k1, configData.k2, configData.k3, configData.k4, configData.k5];
 
   copyShortcut.forEach((item, index) => {
     globalShortcut.register( item, () => {
       console.log(index, 187);
-      BrowserWindow.fromId(global.mainId).webContents.send('handleCopyShortcut', index);
+      BrowserWindow.fromId(global.mainId).webContents.send('handleCopyShortcut', index + 1);
     })
   })
 
+  const pasteShortcut = [configData.k6, configData.k7, configData.k8, configData.k9, configData.k10];
 
+  pasteShortcut.forEach((item, index) => {
+    globalShortcut.register( item, () => {
+      BrowserWindow.fromId(global.mainId).webContents.send('handlePasteShortcut', index + 1);
 
-
-
-
+    })
+  })
 }
 
 // 获取文件系统图标
@@ -253,7 +337,35 @@ export function   handleSetting() {
 
 }
 
-//
+// 处理粘贴事件
+export const handlePaste = (ev) => {
+  // console.log(data.text);
+  BrowserWindow.fromId(global.mainId).blur();
+  // 模拟组合键，例如Ctrl+v
+  rubick.sendKeyboardSimulation('{+CTRL}v{-CTRL}');
+  return true;
+}
+
+
+// 开机自启
+export function handleAutoRun(openAtLogin = true) {
+  console.log(openAtLogin, 352);
+  if (app.isPackaged) {
+
+    if (app.getLoginItemSettings().openAtLogin && openAtLogin)  return;
+    const ex = process.execPath;
+    app.setLoginItemSettings({
+      openAtLogin: openAtLogin,
+      path: ex,
+      openAsHidden: true,
+      args: [],
+    });
+  }
+
+}
+
+
+
 
 
 

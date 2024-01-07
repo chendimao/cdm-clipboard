@@ -45,4 +45,4 @@ appImage:
 npmRebuild: false
 publish:
   provider: generic
-  url: http://down.chendimao.com/
+  url: https://gitee.com/dimao/cdm-clipboard/releases/download/cdm_clipboard/

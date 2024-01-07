@@ -35,8 +35,9 @@ const CreateSettingWindow = ({
       sandbox: false,
       webSecurity: false,
       devTools: true,
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      enabbleRemoteModule: true,
     }
   }
   // 这里创建窗口实例
@@ -55,10 +56,10 @@ const CreateSettingWindow = ({
   // /settingWindow这个路由是在渲染进程创建的承载外部链接的独立窗口的页面
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) { // 判断若为开发环境
     // settingWindow.webContents.openDevTools()
-    winURL = process.env['ELECTRON_RENDERER_URL'] + '#/' + (data.inUrl ? data.inUrl : 'settingWindow')
+    winURL = process.env['ELECTRON_RENDERER_URL'] + '#/' + (data.inUrl ? data.inUrl : 'setting')
   } else {
-    createProtocol('app')
-    winURL = 'app://./index.html#' + (data.inUrl ? data.inUrl : '#/settingWindow')
+
+    winURL = join(__dirname, '../renderer/index.html')  + '#/' + (data.inUrl ? data.inUrl : 'setting')
   }
   // 这里是为了获取拼接需要传入到页面的参数
   const param = Object.keys(data).reduce((pre, cue) => {

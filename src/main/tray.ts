@@ -1,4 +1,4 @@
-import {BrowserWindow, Menu, Tray, nativeImage, ipcMain} from 'electron'
+import {BrowserWindow, Menu, Tray, nativeImage, ipcMain, dialog} from 'electron'
 import {join, dirname} from "path";
 import {is} from "@electron-toolkit/utils";
 import CreateSettingWindow from './setting.js';

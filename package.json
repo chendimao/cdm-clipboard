@@ -1,6 +1,6 @@
 {
   "name": "cdm-clipboard",
-  "version": "1.0.4",
+  "version": "1.0.3",
   "description": "An Electron application with Vue and TypeScript",
   "main": "./out/main/index.js",
   "author": "chendimao.com",
@@ -33,7 +33,9 @@
     "electron-log": "^5.0.1",
     "electron-updater": "^6.1.1",
     "node-machine-id": "^1.1.12",
-    "robotjs": "^0.6.0",
+    "rubick-native": "^0.0.16-beta",
+    "rubick-native-addon": "^0.0.16-beta",
+    "rubick-native-addon-win32-x64-msvc": "^0.0.15-beta",
     "vue-virtual-scroller": "^2.0.0-beta.8",
     "vue3-menus": "^1.1.2"
   },
@@ -88,7 +90,7 @@
     "xe-utils": "^3.5.14"
   },
   "volta": {
-    "node": "16.14.0",
-    "npm": "9.9.2"
+    "node": "18.19.0",
+    "npm": "10.2.5"
   }
 }

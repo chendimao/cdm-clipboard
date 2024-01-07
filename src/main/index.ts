@@ -5,13 +5,13 @@ import fs from 'fs'
 import {electronApp, optimizer, is} from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import {trayInit} from "./tray";
-import {initDB} from "../utils/database";
+import {initDB} from "../utils/database.js";
 
 
 
 require('@electron/remote/main').initialize();
 import {
-  copyPath, handleEvent, handleGlobal, handleShortcut, openFile,
+  copyPath, handleAutoRun, handleDoubleShortcut, handleEvent, handleGlobal, handleShortcut, openFile,
   openPath, openQuickLook, regMyProtocol,
 } from './common/index.js';
 import * as path from "path";
@@ -123,6 +123,8 @@ if (!gotTheLock) {
     handleEvent();
     // 初始化数据库
     initDB();
+    // 初始化双击激活快捷键
+    handleDoubleShortcut();
 
     // 注册自定义协议
     regMyProtocol();
@@ -168,13 +170,16 @@ if (!gotTheLock) {
     //托盘管理
     trayInit();
 
+    // 开机自启
+    handleAutoRun(!!global.Config.autoStart);
+
+
+
     // 初始化文件icon
     downloadIcon();
     // 初始化quickLook
-    if(process.platform == 'win32'){
-      console.log('这是windows系统');
       downloadQuickLook();
-    }
+
 
 
 

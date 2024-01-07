@@ -17,12 +17,10 @@ import {
   updateDB
 } from "../utils/database";
 import logger from '../utils/logs.js';
-import {deleteFile, getFileIcon} from "./common";
+import {deleteFile, getFileIcon, handlePaste} from "./common";
 import {existsSync, lstat, lstatSync, statSync} from "fs";
 import dayjs from "dayjs";
-import {GlobalKeyboardListener} from "node-global-key-listener";
 const clipboardListener = require('clipboard-event');
-const robot = require('robotjs');
 const { betterClipboard } = require('better-clipboard')
 
 
@@ -35,13 +33,15 @@ let params =  {text: '', html: '', file: '', rtf: '', img: '', cache: ''};
 
 
 clipboardListener.startListening();
-clipboardListener.on('change', () => {
+clipboardListener.on('change', (ev) => {
+
   getClipboardFiles();
 });
 
 
 // 获取剪切板上文件路径
 export function getClipboardFiles () {
+  console.log(clipboard.readText(), 39);
 
   params.text = '';
   params.html = '';
@@ -93,7 +93,7 @@ export function getClipboardFiles () {
 
         if ( stat.isFile()) {
           // 如果文件过大
-          if (stat.size > 1024 * 1024 * global.userConfig.fileSize) filteredMaxFile.push(i);
+          if (stat.size > 1024 * 1024 * global.Config.fileSize) filteredMaxFile.push(i);
         } else {
           filteredDir.push(i);
         }
@@ -102,7 +102,7 @@ export function getClipboardFiles () {
       });
       params.info = [];
       params.size = [];
-      const isCacheFile = global.userConfig.isCacheFile;
+      const isCacheFile = global.Config.isCacheFile;
       // 如果文件列表不为空
       if (params.file.length > 0) {
         // 如果开启了缓存配置 cache使用缓存路径，否则使用原始路径
@@ -125,7 +125,7 @@ export function getClipboardFiles () {
 
           // 如果是文件，且开启了缓存文件配置 且没有超过文件大小上限 缓存文件
           let tmpCache = item;
-          if(info.isFile() && isCacheFile &&(info.size <= 1024 * 1024 * global.userConfig.fileSize)) {
+          if(info.isFile() && isCacheFile &&(info.size <= 1024 * 1024 * global.Config.fileSize)) {
             copyFileToCache(item, global.fileDir(basename(item)));
             tmpCache = global.fileDir(basename(item))
           }
@@ -159,7 +159,7 @@ export function getClipboardFiles () {
       //错误信息提示
       if (filteredDir.length > 0 || filteredMaxFile.length > 0) {
         const dirBody = filteredDir.length > 0 ? `文件夹未被缓存：\r\n` + filteredDir.map(item => `${item}\r\n`): '';
-        const maxFileBody = filteredMaxFile.length > 0 ? `超过设置大小${global.userConfig.fileSize}MB：\r\n` + filteredMaxFile.map(item => `${item}\r\n`): '';
+        const maxFileBody = filteredMaxFile.length > 0 ? `超过设置大小${global.Config.fileSize}MB：\r\n` + filteredMaxFile.map(item => `${item}\r\n`): '';
         new Notification({title: '请注意以下文件或目录', body: dirBody + maxFileBody}).show();
       }
 
@@ -171,6 +171,11 @@ export function getClipboardFiles () {
 
 
   }
+
+  console.log(type, 175);
+
+  // return;
+
   // 排除意外情况
   if (!hash || !type) {
     return;
@@ -203,6 +208,9 @@ export function getClipboardFiles () {
     BrowserWindow.fromId(global.mainId).webContents.send('updateData', params)
    // console.log(params, 81);
   }
+
+  console.log(global.clipboardCount);
+
  return params;
  //return getClipboard();
 }
@@ -214,7 +222,7 @@ export function getClipboardFiles () {
 // 获取剪切板列表
 export async function getClipboardList(event, params, keyword, type,  limit, offset) {
   const clipboardData = getDbList(params, keyword, type, limit, offset);
-  const v = new GlobalKeyboardListener();
+
 
 
 
@@ -259,11 +267,11 @@ export function setCurrentClipboard(event, hash, type = 'text') {
         rtf: data.rtf
       })
     }
-   // console.log(data.text);
-    BrowserWindow.fromId(global.mainId).blur();
 
-    // 模拟组合键，例如Ctrl+v
-    // robot.keyTap('v', ['control']);
+    // 复制完成立即触发粘贴事件
+    handlePaste();
+
+  return true;
     return data || false;
 
 

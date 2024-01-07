@@ -214,16 +214,28 @@
           <div class="overflow-auto h-430px " >
           <div class="flex items-center h-50px">
             <div class="mr-15px line-height-35px w-120px text-right">
-              激活程序
+              激活方式
             </div>
             <div>
-              <a-input :value="configData.k0" @keydown="handleKey($event, 'k0')"  style="width: 240px;" />
+                <a-switch class="ml-5px" checked-children="双击键" un-checked-children="组合键" :checked-value="1" :un-checked-value="0" v-model:checked="configData.isDoubKey" />
+
             </div>
           </div>
 
           <div class="flex items-center h-50px">
             <div class="mr-15px line-height-35px w-120px text-right">
-              快速复制1
+              <span v-if="configData.isDoubKey">双击</span>
+              <span  v-else>组合键</span>激活程序
+            </div>
+            <div>
+              <a-input v-if="configData.isDoubKey" :value="configData.b1" @keydown="handleKey($event, 'b1')"  style="width:240px;" />
+              <a-input v-else :value="configData.k0" @keydown="handleKey($event, 'k0')"  style="width:240px;" />
+            </div>
+          </div>
+
+          <div class="flex items-center h-50px">
+            <div class="mr-15px line-height-35px w-120px text-right">
+              快速复制第2条
             </div>
             <div>
               <a-input v-model:value="configData.k1"    @keydown="handleKey($event, 'k1')"  style="width: 240px;" />
@@ -232,7 +244,7 @@
 
           <div class="flex items-center h-50px">
             <div class="mr-15px line-height-35px w-120px text-right">
-              快速复制2
+              快速复制第3条
             </div>
             <div>
               <a-input v-model:value="configData.k2"    @keydown="handleKey($event, 'k2')"  style="width: 240px;" />
@@ -241,7 +253,7 @@
 
           <div class="flex items-center h-50px">
             <div class="mr-15px line-height-35px w-120px text-right">
-              快速复制3
+              快速复制第4条
             </div>
             <div>
               <a-input v-model:value="configData.k3"    @keydown="handleKey($event, 'k3')"  style="width: 240px;" />
@@ -250,7 +262,7 @@
 
           <div class="flex items-center h-50px">
             <div class="mr-15px line-height-35px w-120px text-right">
-              快速复制4
+              快速复制第5条
             </div>
             <div>
               <a-input v-model:value="configData.k4"    @keydown="handleKey($event, 'k4')"  style="width: 240px;" />
@@ -259,10 +271,57 @@
 
           <div class="flex items-center h-50px">
             <div class="mr-15px line-height-35px w-120px text-right">
-              快速复制5
+              快速复制第6条
             </div>
             <div>
               <a-input v-model:value="configData.k5"    @keydown="handleKey($event, 'k5')"  style="width: 240px;" />
+            </div>
+          </div>
+
+
+
+          <div class="flex items-center h-50px">
+            <div class="mr-15px line-height-35px w-120px text-right">
+              快速粘贴第2条
+            </div>
+            <div>
+              <a-input v-model:value="configData.k6"    @keydown="handleKey($event, 'k6')"  style="width: 240px;" />
+            </div>
+          </div>
+
+          <div class="flex items-center h-50px">
+            <div class="mr-15px line-height-35px w-120px text-right">
+              快速粘贴第3条
+            </div>
+            <div>
+              <a-input v-model:value="configData.k7"    @keydown="handleKey($event, 'k7')"  style="width: 240px;" />
+            </div>
+          </div>
+
+          <div class="flex items-center h-50px">
+            <div class="mr-15px line-height-35px w-120px text-right">
+              快速粘贴第4条
+            </div>
+            <div>
+              <a-input v-model:value="configData.k8"    @keydown="handleKey($event, 'k8')"  style="width: 240px;" />
+            </div>
+          </div>
+
+          <div class="flex items-center h-50px">
+            <div class="mr-15px line-height-35px w-120px text-right">
+              快速粘贴第5条
+            </div>
+            <div>
+              <a-input v-model:value="configData.k9"    @keydown="handleKey($event, 'k9')"  style="width: 240px;" />
+            </div>
+          </div>
+
+          <div class="flex items-center h-50px">
+            <div class="mr-15px line-height-35px w-120px text-right">
+              快速粘贴第6条
+            </div>
+            <div>
+              <a-input v-model:value="configData.k10"    @keydown="handleKey($event, 'k10')"  style="width: 240px;" />
             </div>
           </div>
 
@@ -320,16 +379,30 @@ const { ipcRenderer } = window.electron
 const activeKey = ref('1');
 const configData = ref();
 const version = ref();
+const dblKey = ref();
+const currentKey = ref();
 
 onMounted(() => {
   getConfig();
   getVersion();
+
+  ipcRenderer.on('onDblKey',  (event, arg) =>{
+
+    if (configData.value.isDoubKey == 1 && currentKey.value == 'b1') {
+      configData.value['b1'] =  arg? arg[0].value : '';
+    }
+
+
+    //getData();
+  })
+
 })
 
 
 function getConfig() {
   ipcRenderer.invoke('getConfig').then(res => {
     configData.value = res;
+    console.log(configData);
     message.success('获取配置成功');
   })
 }
@@ -340,6 +413,9 @@ function handleSave() {
 
     if (res?.changes === 1) {
       message.success('保存配置成功');
+      ipcRenderer.invoke('handleShortcut');
+
+
     }
 
   })
@@ -347,42 +423,51 @@ function handleSave() {
 
 
 function handleKey(ev, key) {
+
   let keyStr = ''
-  console.log(ev);
-  if (ev.altKey) {
-    keyStr += 'Alt+';
-  }
-  if (ev.ctrlKey) {
-    keyStr += 'CommandOrControl+';
-  }
-  if (ev.shiftKey) {
-    keyStr += 'Shift+';
-  }
-
-  if (![16, 17, 18].includes(ev.keyCode)) {
-    keyStr += ev.key.toUpperCase();
-  }
-
-
-  if (['Alt+', 'CommandOrControl+', 'Shift+'].includes(keyStr)) {
-    configData.value[key] = '';
-  } else {
-    let flag = true;
-    for (let i = 0; i < 16; i++) {
-      if (configData.value['k' + i] == keyStr) {
-        flag = false;
+      if (key === 'b1') {
+        currentKey.value = key;
+        return;
       }
+
+
+
+
+    if (ev.altKey) {
+      keyStr += 'Alt+';
+    }
+    if (ev.ctrlKey) {
+      keyStr += 'CommandOrControl+';
+    }
+    if (ev.shiftKey) {
+      keyStr += 'Shift+';
     }
 
-    if (flag) {
-      configData.value[key] = keyStr;
+    if (![16, 17, 18].includes(ev.keyCode)) {
+      keyStr += ev.key.toUpperCase();
+    }
+
+
+    if (['Alt+', 'CommandOrControl+', 'Shift+'].includes(keyStr)) {
+      configData.value[key] = '';
     } else {
+      let flag = true;
+      for (let i = 0; i < 16; i++) {
+        if (configData.value['k' + i] == keyStr) {
+          flag = false;
+        }
+      }
 
-      message.info('快捷键重复，请重新设置');
+      if (flag) {
+        configData.value[key] = keyStr;
+      } else {
+
+        message.info('快捷键重复，请重新设置');
+      }
+
+
     }
 
-
-  }
 
 }
 

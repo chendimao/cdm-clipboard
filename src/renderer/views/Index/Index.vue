@@ -259,14 +259,11 @@ function htmlDecode (text){
 
 
 
-
-
-
 //  滚动到底部
 function handleScroll(ev) {
   const {scrollTop, clientHeight, scrollHeight} = ev.target
-  // console.log(scrollTop, clientHeight, scrollHeight)
-  if (scrollTop + clientHeight === scrollHeight){
+   //console.log(scrollTop, clientHeight, scrollHeight)
+  if (scrollTop + clientHeight >= scrollHeight){
     page.value += 1;
     getData();
   }
@@ -292,10 +289,21 @@ onMounted( async() => {
     }
   })
 
-  // 监听快捷键设置当前剪切板
+  // 监听快捷键设置当前剪切板 复制
   ipcRenderer.on('handleCopyShortcut', (event, arg) => {
     if (arg) {
       setCurrentClipboard(list.value[arg]);
+    }
+
+  })
+  // 监听快捷键设置当前剪切板 复制并粘贴
+  ipcRenderer.on('handlePasteShortcut', async (event, arg) => {
+    console.log(arg);
+    if (arg) {
+      await setCurrentClipboard(list.value[arg]);
+      // ipcRenderer.invoke('handlePaste').then(res => {
+      //   console.log(res);
+      // })
     }
 
   })
@@ -306,6 +314,9 @@ onMounted( async() => {
     //getData();
   })
   document.addEventListener('keydown', handleKeyDown);
+
+  getConfig();
+
 })
 
 watch(currentClipboard, (data) => {
@@ -318,6 +329,11 @@ function getClipboardList() {
     //list.value = res;
   })
 }
+
+function getConfig() {
+  ipcRenderer.invoke('getConfig');
+}
+
 
 
 // 打开文件
@@ -350,11 +366,10 @@ function getData(keyword = undefined, type = undefined) {
 
   })
 }
-
-
 // 设置当前双击项为最新剪切项
-function setCurrentClipboard(row) {
-  updateData(row);
+async function setCurrentClipboard(row) {
+  ipcRenderer.invoke('setCurrentClipboard', row.hash, row.type).then(res => {});
+  await updateData(row);
 }
 
 
@@ -368,7 +383,7 @@ async function updateData(res) {
     console.log('is first');
     return;
   }
-  ipcRenderer.invoke('setCurrentClipboard', res.hash, res.type).then(res => {});
+
   const len = list.value.length;
 
   for (let i = 0; i < len; i++) {

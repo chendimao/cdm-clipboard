@@ -82,42 +82,42 @@
       <Deterministic>1</Deterministic>
       <Variadic>1</Variadic>
     </routine>
-    <routine id="32" parent="1" name="max">
-      <Deterministic>1</Deterministic>
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="33" parent="1" name="min">
-      <Deterministic>1</Deterministic>
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="34" parent="1" name="json_set">
-      <Deterministic>1</Deterministic>
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="35" parent="1" name="regexp">
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="36" parent="1" name="snippet">
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="37" parent="1" name="rtreecheck">
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="38" parent="1" name="highlight">
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="39" parent="1" name="bm25">
-      <Variadic>1</Variadic>
-    </routine>
-    <routine id="40" parent="1" name="lag">
+    <routine id="32" parent="1" name="lag">
       <FunctionType>window</FunctionType>
     </routine>
-    <routine id="41" parent="1" name="lead">
+    <routine id="33" parent="1" name="max">
+      <Deterministic>1</Deterministic>
+      <Variadic>1</Variadic>
+    </routine>
+    <routine id="34" parent="1" name="lead">
       <FunctionType>window</FunctionType>
     </routine>
-    <routine id="42" parent="1" name="matchinfo"/>
-    <routine id="43" parent="1" name="charindex"/>
-    <routine id="44" parent="1" name="fts3_tokenizer"/>
+    <routine id="35" parent="1" name="min">
+      <Deterministic>1</Deterministic>
+      <Variadic>1</Variadic>
+    </routine>
+    <routine id="36" parent="1" name="json_set">
+      <Deterministic>1</Deterministic>
+      <Variadic>1</Variadic>
+    </routine>
+    <routine id="37" parent="1" name="regexp">
+      <Variadic>1</Variadic>
+    </routine>
+    <routine id="38" parent="1" name="snippet">
+      <Variadic>1</Variadic>
+    </routine>
+    <routine id="39" parent="1" name="matchinfo"/>
+    <routine id="40" parent="1" name="charindex"/>
+    <routine id="41" parent="1" name="rtreecheck">
+      <Variadic>1</Variadic>
+    </routine>
+    <routine id="42" parent="1" name="fts3_tokenizer"/>
+    <routine id="43" parent="1" name="highlight">
+      <Variadic>1</Variadic>
+    </routine>
+    <routine id="44" parent="1" name="bm25">
+      <Variadic>1</Variadic>
+    </routine>
     <routine id="45" parent="1" name="pow">
       <Deterministic>1</Deterministic>
     </routine>
@@ -498,80 +498,80 @@
     <argument id="194" parent="32">
       <ArgumentDirection>R</ArgumentDirection>
     </argument>
-    <argument id="195" parent="33">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="196" parent="34">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="197" parent="35">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="198" parent="36">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="199" parent="37">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="200" parent="38">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="201" parent="39">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="202" parent="40">
-      <ArgumentDirection>R</ArgumentDirection>
-    </argument>
-    <argument id="203" parent="40">
+    <argument id="195" parent="32">
       <Position>1</Position>
     </argument>
-    <argument id="204" parent="40">
+    <argument id="196" parent="32">
       <Position>2</Position>
     </argument>
-    <argument id="205" parent="40">
+    <argument id="197" parent="32">
       <Position>3</Position>
     </argument>
-    <argument id="206" parent="41">
+    <argument id="198" parent="33">
       <ArgumentDirection>R</ArgumentDirection>
     </argument>
-    <argument id="207" parent="41">
+    <argument id="199" parent="34">
+      <ArgumentDirection>R</ArgumentDirection>
+    </argument>
+    <argument id="200" parent="34">
       <Position>1</Position>
     </argument>
-    <argument id="208" parent="41">
+    <argument id="201" parent="34">
       <Position>2</Position>
     </argument>
-    <argument id="209" parent="41">
+    <argument id="202" parent="34">
       <Position>3</Position>
     </argument>
-    <argument id="210" parent="42">
+    <argument id="203" parent="35">
       <ArgumentDirection>R</ArgumentDirection>
     </argument>
-    <argument id="211" parent="42">
-      <Position>1</Position>
-    </argument>
-    <argument id="212" parent="42">
-      <Position>2</Position>
-    </argument>
-    <argument id="213" parent="43">
+    <argument id="204" parent="36">
       <ArgumentDirection>R</ArgumentDirection>
     </argument>
-    <argument id="214" parent="43">
+    <argument id="205" parent="37">
+      <ArgumentDirection>R</ArgumentDirection>
+    </argument>
+    <argument id="206" parent="38">
+      <ArgumentDirection>R</ArgumentDirection>
+    </argument>
+    <argument id="207" parent="39">
+      <ArgumentDirection>R</ArgumentDirection>
+    </argument>
+    <argument id="208" parent="39">
       <Position>1</Position>
     </argument>
-    <argument id="215" parent="43">
+    <argument id="209" parent="39">
       <Position>2</Position>
     </argument>
-    <argument id="216" parent="43">
+    <argument id="210" parent="40">
+      <ArgumentDirection>R</ArgumentDirection>
+    </argument>
+    <argument id="211" parent="40">
+      <Position>1</Position>
+    </argument>
+    <argument id="212" parent="40">
+      <Position>2</Position>
+    </argument>
+    <argument id="213" parent="40">
       <Position>3</Position>
     </argument>
-    <argument id="217" parent="44">
+    <argument id="214" parent="41">
       <ArgumentDirection>R</ArgumentDirection>
     </argument>
-    <argument id="218" parent="44">
+    <argument id="215" parent="42">
+      <ArgumentDirection>R</ArgumentDirection>
+    </argument>
+    <argument id="216" parent="42">
       <Position>1</Position>
+    </argument>
+    <argument id="217" parent="42">
+      <Position>2</Position>
+    </argument>
+    <argument id="218" parent="43">
+      <ArgumentDirection>R</ArgumentDirection>
     </argument>
     <argument id="219" parent="44">
-      <Position>2</Position>
+      <ArgumentDirection>R</ArgumentDirection>
     </argument>
     <argument id="220" parent="45">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1744,34 +1744,98 @@
       <DasType>varchar|0s</DasType>
       <Position>36</Position>
     </column>
-    <key id="586" parent="520">
+    <column id="586" parent="520" name="isDoubKey">
+      <DasType>integer|0s</DasType>
+      <Position>37</Position>
+    </column>
+    <column id="587" parent="520" name="b1">
+      <DasType>integer|0s</DasType>
+      <Position>38</Position>
+    </column>
+    <column id="588" parent="520" name="b2">
+      <DasType>varchar|0s</DasType>
+      <Position>39</Position>
+    </column>
+    <column id="589" parent="520" name="b3">
+      <DasType>varchar|0s</DasType>
+      <Position>40</Position>
+    </column>
+    <column id="590" parent="520" name="b4">
+      <DasType>varchar|0s</DasType>
+      <Position>41</Position>
+    </column>
+    <column id="591" parent="520" name="b5">
+      <DasType>varchar|0s</DasType>
+      <Position>42</Position>
+    </column>
+    <column id="592" parent="520" name="b6">
+      <DasType>varchar|0s</DasType>
+      <Position>43</Position>
+    </column>
+    <column id="593" parent="520" name="b7">
+      <DasType>varchar|0s</DasType>
+      <Position>44</Position>
+    </column>
+    <column id="594" parent="520" name="b8">
+      <DasType>varchar|0s</DasType>
+      <Position>45</Position>
+    </column>
+    <column id="595" parent="520" name="b9">
+      <DasType>varchar|0s</DasType>
+      <Position>46</Position>
+    </column>
+    <column id="596" parent="520" name="b10">
+      <DasType>varchar|0s</DasType>
+      <Position>47</Position>
+    </column>
+    <column id="597" parent="520" name="b11">
+      <DasType>varchar|0s</DasType>
+      <Position>48</Position>
+    </column>
+    <column id="598" parent="520" name="b12">
+      <DasType>varchar|0s</DasType>
+      <Position>49</Position>
+    </column>
+    <column id="599" parent="520" name="b13">
+      <DasType>varchar|0s</DasType>
+      <Position>50</Position>
+    </column>
+    <column id="600" parent="520" name="b14">
+      <DasType>varchar|0s</DasType>
+      <Position>51</Position>
+    </column>
+    <column id="601" parent="520" name="b15">
+      <DasType>varchar|0s</DasType>
+      <Position>52</Position>
+    </column>
+    <key id="602" parent="520">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="587" parent="521" name="type">
+    <column id="603" parent="521" name="type">
       <DasType>TEXT|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="588" parent="521" name="name">
+    <column id="604" parent="521" name="name">
       <DasType>TEXT|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="589" parent="521" name="tbl_name">
+    <column id="605" parent="521" name="tbl_name">
       <DasType>TEXT|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="590" parent="521" name="rootpage">
+    <column id="606" parent="521" name="rootpage">
       <DasType>INT|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="591" parent="521" name="sql">
+    <column id="607" parent="521" name="sql">
       <DasType>TEXT|0s</DasType>
       <Position>5</Position>
     </column>
-    <column id="592" parent="522" name="name">
+    <column id="608" parent="522" name="name">
       <Position>1</Position>
     </column>
-    <column id="593" parent="522" name="seq">
+    <column id="609" parent="522" name="seq">
       <Position>2</Position>
     </column>
   </database-model>

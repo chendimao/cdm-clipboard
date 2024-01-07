@@ -8,7 +8,7 @@ import {createDir, getDownLoadUrl} from "./index";
 import path from "path";
 import fs from "fs";
 export    function downloadQuickLook() {
-
+  if(process.platform !== 'win32') return;
   if (fs.existsSync(global.pluginDir('quickLook'))){
     return;
   }
