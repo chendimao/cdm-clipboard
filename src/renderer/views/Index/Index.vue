@@ -471,6 +471,9 @@ const handleKeyDown = (event) => {
         selectClipboard.value = list.value[selectIndex.value];
       }
       itemRefs.value[selectIndex.value].scrollIntoView(false);
+    },
+    'Enter': () => {
+      setCurrentClipboard(selectClipboard.value);
     }
   }
 
