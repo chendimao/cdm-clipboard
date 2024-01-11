@@ -20,23 +20,23 @@
         <a-tab-pane key="1" tab="基础设置"  >
           <div class="overflow-auto h-430px " >
 
-            <div class="flex items-center h-50px  ">
-              <div class="mr-15px line-height-35px w-120px text-right">
-                最大记录条数
-              </div>
-              <div>
-                <a-select
-                  ref="select"
-                  v-model:value="configData.maxCount"
-                  style="width: 180px"
-                >
-                  <a-select-option :value="500">500</a-select-option>
-                  <a-select-option :value="1000">1000</a-select-option>
-                  <a-select-option :value="5000">5000</a-select-option>
-                  <a-select-option :value="0">不限制</a-select-option>
-                </a-select>
-              </div>
-            </div>
+<!--            <div class="flex items-center h-50px  ">-->
+<!--              <div class="mr-15px line-height-35px w-120px text-right">-->
+<!--                最大记录条数-->
+<!--              </div>-->
+<!--              <div>-->
+<!--                <a-select-->
+<!--                  ref="select"-->
+<!--                  v-model:value="configData.maxCount"-->
+<!--                  style="width: 180px"-->
+<!--                >-->
+<!--                  <a-select-option :value="500">500</a-select-option>-->
+<!--                  <a-select-option :value="1000">1000</a-select-option>-->
+<!--                  <a-select-option :value="5000">5000</a-select-option>-->
+<!--                  <a-select-option :value="0">不限制</a-select-option>-->
+<!--                </a-select>-->
+<!--              </div>-->
+<!--            </div>-->
             <div class="flex items-center h-50px  ">
               <div class="mr-15px line-height-35px w-120px text-right">
                 记录过期时间
@@ -47,6 +47,7 @@
                   v-model:value="configData.expiredTime"
                   style="width: 180px"
                 >
+                  <a-select-option :value="3">3天后过期</a-select-option>
                   <a-select-option :value="7">7天后过期</a-select-option>
                   <a-select-option :value="30">30天后过期</a-select-option>
                   <a-select-option :value="365">365天后过期</a-select-option>
@@ -76,6 +77,24 @@
 
             <div class="flex items-center h-50px">
               <div class="mr-15px line-height-35px w-120px text-right">
+                文件删除方式
+              </div>
+              <div>
+                <a-select
+                  ref="select"
+                  v-model:value="configData.isDeleteFile"
+                  style="width: 180px"
+                >
+                  <a-select-option :value="0">仅删除缓存文件</a-select-option>
+                  <a-select-option :value="1">仅删除源文件</a-select-option>
+                  <a-select-option :value="2">同时删除缓存和源文件</a-select-option>
+                  <a-select-option :value="3">不删除</a-select-option>
+                </a-select>
+              </div>
+            </div>
+
+            <div class="flex items-center h-50px">
+              <div class="mr-15px line-height-35px w-120px text-right">
                 显示位置
               </div>
               <div>
@@ -86,7 +105,7 @@
                 >
                   <a-select-option :value="0">居中靠右</a-select-option>
                   <a-select-option :value="1">垂直居中</a-select-option>
-                  <a-select-option :value="2">相对鼠标位置</a-select-option>
+<!--                  <a-select-option :value="2">相对鼠标位置</a-select-option>-->
                 </a-select>
               </div>
             </div>
@@ -179,20 +198,20 @@
                 精简模式
               </div>
               <div>
-                <a-switch v-model:checked="configData.isMini" :checkedValue="1" :unCheckedValue="0" />
+                <a-switch :disabled="true" v-model:checked="configData.isMini" :checkedValue="1" :unCheckedValue="0" />
               </div>
               <div class="text-11px mt-3px ml-5px line-height-20px color-[gray]">开启后将关闭预览窗口</div>
             </div>
 
-            <div class="flex items-center h-50px">
-              <div class="mr-15px line-height-35px w-120px text-right">
-                开启通知
-              </div>
-              <div>
-                <a-switch v-model:checked="configData.inNotice" :checkedValue="1" :unCheckedValue="0" />
-              </div>
-              <div class="text-11px mt-3px ml-5px line-height-20px color-[gray]">通知记录过程中的一些问题</div>
-            </div>
+<!--            <div class="flex items-center h-50px">-->
+<!--              <div class="mr-15px line-height-35px w-120px text-right">-->
+<!--                开启通知-->
+<!--              </div>-->
+<!--              <div>-->
+<!--                <a-switch v-model:checked="configData.isNotice" :checkedValue="1" :unCheckedValue="0" />-->
+<!--              </div>-->
+<!--              <div class="text-11px mt-3px ml-5px line-height-20px color-[gray]">通知记录过程中的一些问题</div>-->
+<!--            </div>-->
 
 
             <div class="flex items-center h-50px">
@@ -228,8 +247,8 @@
               <span  v-else>组合键</span>激活程序
             </div>
             <div>
-              <a-input v-if="configData.isDoubKey" :value="configData.b1" @keydown="handleKey($event, 'b1')"  style="width:240px;" />
-              <a-input v-else :value="configData.k0" @keydown="handleKey($event, 'k0')"  style="width:240px;" />
+              <a-input v-if="configData.isDoubKey" :value="configData.b1" @keydown="handleKey($event, 'b1')"  allowClear style="width:240px;" />
+              <a-input v-else :value="configData.k0" @keydown="handleKey($event, 'k0')" allowClear  style="width:240px;" />
             </div>
           </div>
 
@@ -238,7 +257,7 @@
               快速复制第2条
             </div>
             <div>
-              <a-input v-model:value="configData.k1"    @keydown="handleKey($event, 'k1')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k1"    @keydown="handleKey($event, 'k1')" allowClear style="width: 240px;" />
             </div>
           </div>
 
@@ -247,7 +266,7 @@
               快速复制第3条
             </div>
             <div>
-              <a-input v-model:value="configData.k2"    @keydown="handleKey($event, 'k2')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k2"    @keydown="handleKey($event, 'k2')" allowClear style="width: 240px;" />
             </div>
           </div>
 
@@ -256,7 +275,7 @@
               快速复制第4条
             </div>
             <div>
-              <a-input v-model:value="configData.k3"    @keydown="handleKey($event, 'k3')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k3"    @keydown="handleKey($event, 'k3')" allowClear  style="width: 240px;" />
             </div>
           </div>
 
@@ -265,7 +284,7 @@
               快速复制第5条
             </div>
             <div>
-              <a-input v-model:value="configData.k4"    @keydown="handleKey($event, 'k4')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k4"    @keydown="handleKey($event, 'k4')" allowClear  style="width: 240px;" />
             </div>
           </div>
 
@@ -274,7 +293,7 @@
               快速复制第6条
             </div>
             <div>
-              <a-input v-model:value="configData.k5"    @keydown="handleKey($event, 'k5')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k5"    @keydown="handleKey($event, 'k5')" allowClear  style="width: 240px;" />
             </div>
           </div>
 
@@ -285,7 +304,7 @@
               快速粘贴第2条
             </div>
             <div>
-              <a-input v-model:value="configData.k6"    @keydown="handleKey($event, 'k6')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k6"    @keydown="handleKey($event, 'k6')" allowClear  style="width: 240px;" />
             </div>
           </div>
 
@@ -294,7 +313,7 @@
               快速粘贴第3条
             </div>
             <div>
-              <a-input v-model:value="configData.k7"    @keydown="handleKey($event, 'k7')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k7"    @keydown="handleKey($event, 'k7')" allowClear  style="width: 240px;" />
             </div>
           </div>
 
@@ -303,7 +322,7 @@
               快速粘贴第4条
             </div>
             <div>
-              <a-input v-model:value="configData.k8"    @keydown="handleKey($event, 'k8')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k8"    @keydown="handleKey($event, 'k8')" allowClear  style="width: 240px;" />
             </div>
           </div>
 
@@ -312,7 +331,7 @@
               快速粘贴第5条
             </div>
             <div>
-              <a-input v-model:value="configData.k9"    @keydown="handleKey($event, 'k9')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k9"    @keydown="handleKey($event, 'k9')"  allowClear style="width: 240px;" />
             </div>
           </div>
 
@@ -321,7 +340,7 @@
               快速粘贴第6条
             </div>
             <div>
-              <a-input v-model:value="configData.k10"    @keydown="handleKey($event, 'k10')"  style="width: 240px;" />
+              <a-input v-model:value="configData.k10"    @keydown="handleKey($event, 'k10')" allowClear  style="width: 240px;" />
             </div>
           </div>
 
@@ -333,7 +352,34 @@
             <a-button type="primary" class="w-100px" @click="handleSave">保存</a-button>
           </div>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="关于" force-render>
+        <a-tab-pane key="3" tab="数据配置" force-render>
+          <div class="overflow-auto h-430px " >
+
+              <div class="flex items-center h-50px mt-20px">
+                <div class="mr-15px line-height-35px w-60px text-right">
+                  数据路径
+                </div>
+                <div>
+                  <a-textarea :autoSize="true"   v-model:value="dataPath" :disabled="true"    style="width: 320px;" />
+                </div>
+              </div>
+            <div class="flex items-center h-50px mt-20px">
+              <div class="mr-15px line-height-35px w-60px text-right">
+
+              </div>
+              <div class="w-100% text-right mr-30px">
+                <a-button type="primary" @click="changePath" >更换数据文件夹</a-button>
+              </div>
+            </div>
+
+
+          </div>
+          <div class="h-50px flex justify-center items-center mr-20px ">
+            <a-button   class="w-100px mr-10px" @click="getConfig">重置</a-button>
+            <a-button type="primary" class="w-100px" @click="handleSave">保存</a-button>
+          </div>
+        </a-tab-pane>
+        <a-tab-pane key="4" tab="关于" force-render>
 
           <div class="flex justify-center items-center flex-col h-430px">
               <div>
@@ -371,20 +417,25 @@
 <script setup lang="ts">
 
 import {CloseSmall, Minus} from "@icon-park/vue-next";
-import {onMounted} from "vue";
+import {createVNode, onMounted} from "vue";
 import logo from '../../assets/img/icon.png';
-import {message} from "ant-design-vue";
+import {message, Modal} from "ant-design-vue";
 
+const oldConfig = ref();
 const { ipcRenderer } = window.electron
 const activeKey = ref('1');
 const configData = ref();
 const version = ref();
 const dblKey = ref();
 const currentKey = ref();
+const dataPath  = ref('');
+const oldDataPath = ref('');
+
 
 onMounted(() => {
   getConfig();
   getVersion();
+  getDataPath();
 
   ipcRenderer.on('onDblKey',  (event, arg) =>{
 
@@ -401,20 +452,23 @@ onMounted(() => {
 
 function getConfig() {
   ipcRenderer.invoke('getConfig').then(res => {
-    configData.value = res;
-    console.log(configData);
+    configData.value = JSON.parse(JSON.stringify(res));
+    oldConfig.value = JSON.parse(JSON.stringify(res));
     message.success('获取配置成功');
   })
 }
 
 function handleSave() {
+  configData.value.dataPath =  dataPath.value;
   ipcRenderer.invoke('saveConfig', JSON.stringify(configData.value)).then(res => {
-    console.log(res);
+
 
     if (res?.changes === 1) {
       message.success('保存配置成功');
       ipcRenderer.invoke('handleShortcut');
-
+      setTimeout(() => {
+        ipcRenderer.invoke('handleRestart');
+      }, 1000);
 
     }
 
@@ -452,10 +506,10 @@ function handleKey(ev, key) {
       configData.value[key] = '';
     } else {
       let flag = true;
-      for (let i = 0; i < 16; i++) {
-        if (configData.value['k' + i] == keyStr) {
-          flag = false;
-        }
+        for (let i = 0; i < 16; i++) {
+          if (configData.value['k' + i] == keyStr) {
+            flag = false;
+          }
       }
 
       if (flag) {
@@ -487,9 +541,27 @@ function toLink(link) {
 
 function getVersion() {
   ipcRenderer.invoke('getVersion').then(res => {
-    console.log(res);
     version.value = res;
   })
+}
+
+function getDataPath() {
+  ipcRenderer.invoke('getDataPath').then(res => {
+    dataPath.value = res;
+    oldDataPath.value = res;
+  })
+}
+
+function changePath() {
+   ipcRenderer.invoke('changeDataPath').then(res => {
+
+     if (res.canceled === false) {
+       dataPath.value = res.filePaths[0];
+     }
+
+
+  })
+
 }
 
 </script>

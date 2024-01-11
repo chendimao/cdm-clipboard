@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="clipboard.db" uuid="d7aab9de-4947-4fd2-92d6-a1567dee7d9c">
+    <data-source source="LOCAL" name="clipboard.db" uuid="932b3917-57cb-40a3-aa8d-6c58a77bc6ad">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$USER_HOME$/AppData/Roaming/cdm-clipboard/data/db/clipboard.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:D:/clipboard-data/db/clipboard.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

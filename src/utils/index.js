@@ -107,6 +107,7 @@ export function getDeviceId() {
 
 // 创建目录
 export function createDir(dir) {
+  console.log(dir, global.dbDir(), 110);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, {recursive: true});
   }

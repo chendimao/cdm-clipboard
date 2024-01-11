@@ -1669,7 +1669,7 @@
     </column>
     <column id="567" parent="520" name="dataPath">
       <DasType>varchar|0s</DasType>
-      <DefaultExpression>&apos;C:\Users\12280\AppData\Roaming\cdm-clipboard\data&apos;</DefaultExpression>
+      <DefaultExpression>&apos;D:\clipboard-data&apos;</DefaultExpression>
       <Position>17</Position>
     </column>
     <column id="568" parent="520" name="isMini">

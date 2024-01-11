@@ -31,7 +31,7 @@
 
           <div class="w-65px   text-left  font-bold text-12px">状态</div>
           <div class="w-205px  text-left break-words break-all text-12px">
-            <a-tooltip title="文件未缓存"  >
+            <a-tooltip title="文件不存在"  >
 
               <span></span>
                 <a-image
@@ -42,7 +42,7 @@
                   :preview="false"
                 />
             </a-tooltip>
-            <a-tooltip title="文件已缓存"   >
+            <a-tooltip title="文件存在"   >
               <span></span>
             <a-image
               v-if="tableData[currentIndex].exists"
@@ -84,9 +84,7 @@ const currentFile = ref();
 const currentIndex = ref(0);
 
 watch(() => props.selectClipboard,(newVal, oldVal) =>{
-  console.log(newVal);
-  tableData.value = newVal.cache.split('??::').map(item => ({name: item, exists: fileIsExists(fileDir(item.replace(/^.*[\\\/]/, '')))}))
-  console.log(tableData.value);
+  tableData.value = newVal.cache.split('??::').map(item => ({name: item, exists: fileIsExists(item)}))
   currentIndex.value = 0;
   currentFile.value = tableData.value[currentIndex.value];
 }, {deep: true, immediate: true})

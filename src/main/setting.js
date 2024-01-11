@@ -3,6 +3,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import {is} from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png";
 import {join} from "path";
+import {handleShortcut} from "./common";
 /**
  * 必传参数
  * outUrl  外部链接
@@ -21,7 +22,7 @@ const CreateSettingWindow = ({
     show: false,
     backgroundColor: '#f1f3f8',
     autoHideMenuBar: true,
-    alwaysOnTop: true,
+
     maximizable: false,
     frame: false,
     resizable: false,
@@ -71,6 +72,11 @@ const CreateSettingWindow = ({
   if (data.maxSize) {
     settingWindow.maximize()
   }
+
+  // 打开设置关闭快捷键
+  globalShortcut.unregisterAll();
+
+
   // 加载页面loading
   //CreateProcessLoadingPage(settingWindow, data)
 
@@ -78,10 +84,12 @@ const CreateSettingWindow = ({
     globalShortcut.unregister('CommandOrControl+alt+shift+k')
     global.settingWindow = undefined;
     global.settingWindowId = undefined;
+    handleShortcut();
     setTimeout(() => {
       if (!settingWindow.isDestroyed() && settingWindow) {
         settingWindow.destroy()
       }
+
     }, 100)
   })
 

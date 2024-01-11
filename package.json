@@ -1,6 +1,6 @@
 {
   "name": "cdm-clipboard",
-  "version": "1.0.3",
+  "version": "1.0.8",
   "description": "An Electron application with Vue and TypeScript",
   "main": "./out/main/index.js",
   "author": "chendimao.com",
@@ -37,7 +37,8 @@
     "rubick-native-addon": "^0.0.16-beta",
     "rubick-native-addon-win32-x64-msvc": "^0.0.15-beta",
     "vue-virtual-scroller": "^2.0.0-beta.8",
-    "vue3-menus": "^1.1.2"
+    "vue3-menus": "^1.1.2",
+    "electron-store": "^8.1.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.1",
@@ -65,6 +66,7 @@
     "electron-devtools-installer": "^2.2.4",
     "electron-log": "^5.0.1",
     "electron-rebuild": "^3.2.9",
+    "electron-store": "^8.1.0",
     "electron-vite": "^1.0.29",
     "eslint": "^8.47.0",
     "eslint-plugin-vue": "^9.17.0",

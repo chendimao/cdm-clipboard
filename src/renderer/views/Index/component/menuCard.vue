@@ -1,7 +1,7 @@
 <template>
   <div>
-    <ul class="w-100% pl-20px pr-20px">
-      <li class="w-100%  h-40px flex  pl-15px cursor-pointer select-none" style="line-height: 40px" v-for="(item, index) in menuList.filter( item => item.type == selectClipboard.type)" :class="{'menu-active': active == index}" @dblclick="handleEvent(item, index)" @click="active = index" >
+    <ul class="w-100% pl-20px pr-20px mt-10px">
+      <li class="w-100%  h-40px flex  pl-15px cursor-pointer select-none" style="line-height: 40px" v-for="(item, index) in currentMenuList" :class="{'menu-active': active == index}" @dblclick="handleEvent(item, index)" @click="active = index" >
         <div class="w-200px">
           <img  class="w-22px mr-5px" :src="item.icon"/>
           {{ item.name }}
@@ -18,7 +18,7 @@
 
 
 <script setup lang="ts">
-import {defineProps, watch} from "vue";
+import {computed, defineProps, watch} from "vue";
 import fileIcon from '../../../assets/img/wj.png';
 import copyLink from '../../../assets/img/fzdz.png';
 import copyFile from '../../../assets/img/fz.png';
@@ -27,7 +27,7 @@ import clear from '../../../assets/img/ljt.png';
 import {message} from "ant-design-vue";
 const fileIsExists = require('@electron/remote').getGlobal('fileIsExists');
 const fileDir = require('@electron/remote').getGlobal('fileDir');
-
+const Cnofig = require('@electron/remote').getGlobal('Config');
 
 
 
@@ -48,30 +48,50 @@ const props = defineProps({
   }
 })
 
-// watch(() => props.selectClipboard, (data) => {
-//   console.log(data);
-// })
+
 
 
 const emits = defineEmits(['setCurrentClipboard', 'deleteData']);
 
 
 const menuList = ref([
-  {name: '打开图片', type: 'img',  keyDown: 'Ctrl+1',  key: 'openImg', value: 1,icon: fileIcon },
-  {name: '复制图片', type: 'img',  keyDown: 'Ctrl+2',  key: 'copyImg', value: 4,icon: copyFile },
-  {name: '打开目录', type: 'img',  keyDown: 'Ctrl+3',  key: 'openImgPath', value: 2,icon: folderOpen },
-  {name: '复制目录', type: 'img',  keyDown: 'Ctrl+4',  key: 'copyPath', value: 3,icon: copyLink },
-  {name: '删除图片', type: 'img',  keyDown: 'Ctrl+5',  key: 'remove', value: 5,icon:clear },
-  {name: '打开文件', type: 'file',  keyDown: 'Ctrl+1',  key: 'openFile', value: 1,icon: fileIcon },
-  {name: '复制文件', type: 'file',  keyDown: 'Ctrl+2',  key: 'copyFile', value: 4,icon: copyFile },
-  {name: '打开目录', type: 'file',  keyDown: 'Ctrl+3',  key: 'openFilePath', value: 2,icon: folderOpen },
-  {name: '复制目录', type: 'file',  keyDown: 'Ctrl+4',  key: 'copyPath', value: 3,icon: copyLink },
-  {name: '删除记录', type: 'file',  keyDown: 'Ctrl+5',  key: 'remove', value: 5,icon:clear },
-  {name: '复制文本', type: 'text', keyDown: 'Ctrl+1',   key: 'copy', value: 4,icon: copyFile },
-  {name: '删除记录', type: 'text', keyDown: 'Ctrl+2',   key: 'remove', value: 5,icon:clear },
+  {name: '打开图片', type: 'img',  keyDown: '',  key: 'openImg', value: 1,icon: fileIcon },
+  {name: '复制图片', type: 'img',  keyDown: '',  key: 'copyImg', value: 4,icon: copyFile },
+  {name: '打开目录', type: 'img',  keyDown: '',  key: 'openImgPath', value: 2,icon: folderOpen },
+  {name: '复制目录', type: 'img',  keyDown: '',  key: 'copyPath', value: 3,icon: copyLink },
+  {name: '删除记录', type: 'img',  keyDown: '',  key: 'remove', value: 5,icon:clear },
+  {name: '打开文件', type: 'file',  keyDown: '',  key: 'openFile', value: 1,icon: fileIcon },
+  {name: '复制文件', type: 'file',  keyDown: '',  key: 'copyFile', value: 4,icon: copyFile },
+  {name: '打开目录', type: 'file',  keyDown: '',  key: 'openFilePath', value: 2,icon: folderOpen },
+  {name: '复制目录', type: 'file',  keyDown: '',  key: 'copyPath', value: 3,icon: copyLink },
+  {name: '删除记录', type: 'file',  keyDown: '',  key: 'remove', value: 5,icon:clear },
+  {name: '复制文本', type: 'text', keyDown: '',   key: 'copy', value: 4,icon: copyFile },
+  {name: '删除记录', type: 'text', keyDown: '',   key: 'remove', value: 5,icon:clear },
 ]);
 
+const currentMenuList = computed(() => menuList.value.filter(
+  item => item.type == props.selectClipboard.type).map(
+    (item, index) => {
+      item.keyDown = Cnofig['b' + (index + 2)]
+      return item;
+    }));
+
 const active = ref(-1);
+
+ipcRenderer.on('setMenuShortcut', (res, data) => {
+  handleEvent(currentMenuList.value[data], data);
+})
+
+
+
+watch(() => currentMenuList, (data) => {
+
+  ipcRenderer.invoke('handleMenuShortcut', data.value.length??0)
+  active.value = 0;
+
+}, {deep: true, immediate: true})
+
+
 
 function handleEvent(row, index) {
   active.value = index;
@@ -139,6 +159,7 @@ function contextMenuClickEvent(key) {
       if(!fileIsExists(selectClipboard.img)){
         message.error('该文件不存在'); return;
       }
+      console.log('openimg');
       ipcRenderer.invoke('openFile', selectClipboard.img.replaceAll('/','\\'));
     },
     'openFile': () => {

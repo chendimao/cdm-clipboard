@@ -18,7 +18,7 @@ import {
 } from "../utils/database";
 import logger from '../utils/logs.js';
 import {deleteFile, getFileIcon, handlePaste} from "./common";
-import {existsSync, lstat, lstatSync, statSync} from "fs";
+import {existsSync, lstat, lstatSync, statSync, writeFile, writeFileSync} from "fs";
 import dayjs from "dayjs";
 const clipboardListener = require('clipboard-event');
 const { betterClipboard } = require('better-clipboard')
@@ -41,7 +41,7 @@ clipboardListener.on('change', (ev) => {
 
 // 获取剪切板上文件路径
 export function getClipboardFiles () {
-  console.log(clipboard.readText(), 39);
+
 
   params.text = '';
   params.html = '';
@@ -57,7 +57,22 @@ export function getClipboardFiles () {
     console.log(item, 44);
 
     if (item === 'text/plain') {
+
       params.text = clipboard.readText()
+
+      // 是否自动将长文本转为txt文件 判断文本大小
+      if (global.Config.bigTextToFile == 1) {
+
+        if (Buffer.byteLength(params.text, 'utf8') > global.Config.textSize * 1024) {
+          const filename = global.fileDir(`${dayjs().format('YYYY-MM-DD-HH-mm-ss')}.txt`);
+           writeFileSync(filename, params.text)
+          new Notification({title: '温馨提示', body: `当前复制项已超过复制长文本大小上限${global.Config.textSize}KB，并自动转为文件，该配置可在设置中关闭`}).show();
+            betterClipboard.writeFileList([filename]);
+            return;
+        }
+      }
+
+
       hash = getHash(params.text);
       type = 'text';
     } else if (item === 'text/html') {
@@ -102,7 +117,8 @@ export function getClipboardFiles () {
       });
       params.info = [];
       params.size = [];
-      const isCacheFile = global.Config.isCacheFile;
+      // 是否本地缓存
+      const isCacheFile = global.Config.isCacheFile === 0 ||  global.Config.isCacheFile === 1;
       // 如果文件列表不为空
       if (params.file.length > 0) {
         // 如果开启了缓存配置 cache使用缓存路径，否则使用原始路径
@@ -209,7 +225,6 @@ export function getClipboardFiles () {
    // console.log(params, 81);
   }
 
-  console.log(global.clipboardCount);
 
  return params;
  //return getClipboard();
@@ -285,15 +300,25 @@ export function deleteClipboard(event, hash, type) {
   if(res) {
     deleteDB('Clipboard', hash);
 
-    if (['img', 'file'].includes(type)) {
+    // 如果为文件 且配置不为  不删除
+    if (['img', 'file'].includes(type) && global.Config.isDeleteFile != 3) {
 
-      const sql = `select cache from Cache where drive = '${global.driveId}' and hash = '${hash}'`;
+      const sql = `select cache, file, img from Cache where drive = '${global.driveId}' and hash = '${hash}'`;
       const fileList = execQuerySql(sql)
      // console.log(fileList);
-     // console.log(fileList, 200);
+      console.log(fileList, 200);
       // 同时删除缓存文件
       fileList.forEach(item => {
-        deleteFile(item.cache);
+        if (global.Config.isDeleteFile == 0) deleteFile(item.cache);
+       else if (global.Config.isDeleteFile == 1) {
+         if(type == 'file') deleteFile(item.file);
+         else if(type == 'img') deleteFile(item.img);
+        }
+       else if (global.Config.isDeleteFile == 2) {
+          if(type == 'file') deleteFile(item.file);
+          else if(type == 'img') deleteFile(item.img);
+          deleteFile(item.cache)
+        }
       })
       deleteDB('Cache', hash);
     }
@@ -322,7 +347,7 @@ function insertOrUpdateCache(data) {
     execInsertSqlTransaction('Cache', data);
   } else {
   //  console.log('update', 166);
-    const sql = `update Cache SET time = '${dayjs().format('YYYY-MM-DD HH:mm:ss')}' where hash = '${data[0].hash}' and drive = '${global.driveId}'`;
+    const sql = `update Cache SET  time = '${dayjs().format('YYYY-MM-DD HH:mm:ss')}' where hash = '${data[0].hash}' and drive = '${global.driveId}'`;
     const updateCache = execUpdateSql(sql);
    // console.log(updateCache);
   }

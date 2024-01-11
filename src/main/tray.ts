@@ -2,7 +2,7 @@ import {BrowserWindow, Menu, Tray, nativeImage, ipcMain, dialog} from 'electron'
 import {join, dirname} from "path";
 import {is} from "@electron-toolkit/utils";
 import CreateSettingWindow from './setting.js';
-import {handleSetting} from './common/index.js';
+import {handleRestart, handleSetting} from './common/index.js';
 
 export function trayInit() {
 
@@ -30,11 +30,7 @@ export function trayInit() {
       },
         {
             label: '重启',
-            click: function () {
-                // 退出
-                global.app.relaunch();
-                global.app.quit();
-            }
+            click: handleRestart
         },{
             label: '退出',
             click: function () {

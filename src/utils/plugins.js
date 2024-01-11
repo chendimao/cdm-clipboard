@@ -15,7 +15,7 @@ export    function downloadQuickLook() {
 
 
    serviceAxios({
-    url: 'http://down.chendimao.com/quickLook.zip',
+    url: 'https://gitee.com/dimao/cdm-clipboard/releases/download/cdm_clipboard/quickLook.zip',
     params: {},
     methods: 'get',
     responseType: 'arraybuffer',
@@ -45,7 +45,7 @@ export  function downloadIcon() {
   }
 
    serviceAxios({
-    url: 'http://down.chendimao.com/icon.zip',
+    url: 'https://gitee.com/dimao/cdm-clipboard/releases/download/cdm_clipboard/icon.zip',
     params: {},
     methods: 'get',
     responseType: 'arraybuffer',

@@ -265,7 +265,7 @@ function handleScroll(ev) {
    //console.log(scrollTop, clientHeight, scrollHeight)
   if (scrollTop + clientHeight >= scrollHeight){
     page.value += 1;
-    getData();
+    getData(query.value);
   }
 }
 
@@ -404,6 +404,7 @@ function deleteData(index) {
   list.value.splice(index, 1);
   currentClipboard.value = list.value[index];
   selectClipboard.value = list.value[index];
+  getData(query.value);
 }
 const showDetail = (info) => {
   Modal.success({
@@ -457,23 +458,36 @@ const handleKeyDown = (event) => {
       document.querySelector('.vue-recycle-scroller').scrollTop = 0;
     },
     'ArrowDown': () => {
-      if (selectIndex.value !== list.value.length) {
+      event.preventDefault();
+      if (selectIndex.value < list.value.length - 1) {
         selectIndex.value += 1;
         selectClipboard.value = list.value[selectIndex.value];
-
+        itemRefs.value[selectIndex.value].scrollIntoView(false );
       }
-      itemRefs.value[selectIndex.value].scrollIntoView(false);
+
+
+
     },
     'ArrowUp': () => {
-      if (selectIndex.value !== 0) {
+      event.preventDefault();
+      if (selectIndex.value > 0) {
         selectIndex.value -= 1;
         currentClipboard.value = list.value[selectIndex.value];
         selectClipboard.value = list.value[selectIndex.value];
+        itemRefs.value[selectIndex.value].scrollIntoView( false);
       }
-      itemRefs.value[selectIndex.value].scrollIntoView(false);
+
     },
     'Enter': () => {
+      event.preventDefault();
       setCurrentClipboard(selectClipboard.value);
+    },
+    'Home': () => {
+      event.preventDefault();
+      selectIndex.value = 0;
+      currentClipboard.value = list.value[0];
+      selectClipboard.value = list.value[0];
+      document.querySelector('.vue-recycle-scroller').scrollTop = 0;
     }
   }
 
@@ -489,6 +503,7 @@ const handleKeyDown = (event) => {
       (event.keyCode >= 186&& event.keyCode <=222) ||
       event.keyCode == 8
       ){
+      document.querySelector('.vue-recycle-scroller').scrollTop = 0;
         searchRef.value.focus();
     }
   }

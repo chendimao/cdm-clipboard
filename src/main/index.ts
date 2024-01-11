@@ -11,7 +11,7 @@ import {initDB} from "../utils/database.js";
 
 require('@electron/remote/main').initialize();
 import {
-  copyPath, handleAutoRun, handleDoubleShortcut, handleEvent, handleGlobal, handleShortcut, openFile,
+  copyPath, handleAutoRun, handlePositionAndShortcut, handleEvent, handleGlobal, handleShortcut, handleWindowAlign, openFile,
   openPath, openQuickLook, regMyProtocol,
 } from './common/index.js';
 import * as path from "path";
@@ -64,24 +64,35 @@ function createWindow() {
 
 
 
-  // 监听窗口被聚焦事件
+  // 监听窗口失焦事件
   mainWindow.on('blur', () => {
     !is.dev && mainWindow.minimize();
     mainWindow.setSkipTaskbar(true);
   });
 
-  let display = screen.getPrimaryDisplay();
-  let x = display.bounds.width - 520 - 100;
-  let y = display.bounds.height - (display.bounds.height / 2) - 325;
+  mainWindow.on('restore', () => {
+    mainWindow.setSkipTaskbar(true);
 
-  mainWindow.setPosition(x, y);
+
+  });
+
+  // let display = screen.getPrimaryDisplay();
+  // let x = display.bounds.width - 520 - 100;
+  // let y = display.bounds.height - (display.bounds.height / 2) - 325;
+  //
+  // mainWindow.setPosition(x, y);
 
 
   // 全局变量
   global.mainWindow = mainWindow;
   global.app = app;
   global.mainId =  mainWindow.id;
-  return mainWindow
+
+
+  // 窗口对齐位置
+  handleWindowAlign(global.Config.isOffset);
+
+  return mainWindow;
 
 
 }
@@ -123,8 +134,8 @@ if (!gotTheLock) {
     handleEvent();
     // 初始化数据库
     initDB();
-    // 初始化双击激活快捷键
-    handleDoubleShortcut();
+    // 初始化鼠标键盘事件
+    handlePositionAndShortcut();
 
     // 注册自定义协议
     regMyProtocol();
