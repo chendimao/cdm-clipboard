@@ -20,6 +20,7 @@ import logger from '../utils/logs.js';
 import {deleteFile, getFileIcon, handlePaste} from "./common";
 import {existsSync, lstat, lstatSync, statSync, writeFile, writeFileSync} from "fs";
 import dayjs from "dayjs";
+import {downloadTest} from "../utils/plugins";
 const clipboardListener = require('clipboard-event');
 const { betterClipboard } = require('better-clipboard')
 
@@ -237,9 +238,6 @@ export function getClipboardFiles () {
 // 获取剪切板列表
 export async function getClipboardList(event, params, keyword, type,  limit, offset) {
   const clipboardData = getDbList(params, keyword, type, limit, offset);
-
-
-
 
   return clipboardData
 

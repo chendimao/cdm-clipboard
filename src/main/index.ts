@@ -37,7 +37,7 @@ function createWindow() {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       webSecurity: false,
-      devTools: true,
+      devTools: !app.isPackaged,
       nodeIntegration: true,
       contextIsolation: false,
     }

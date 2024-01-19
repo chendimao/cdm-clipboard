@@ -1,5 +1,5 @@
 <template>
-  <div class="h-260px">
+  <div class="h-240px">
 
     <div class="w-100% text-center ">
       <div class="min-h-100px ">
@@ -20,7 +20,7 @@
           <div class="w-205px   text-left break-words break-all text-12px overflow-hidden" style="      display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;">{{selectClipboard.cache.split('??::')[currentIndex]}}</div>
         </div>
         <div class="   flex item-start">
-          <div class="w-65px   text-left  font-bold text-12px">修改时间</div>
+          <div class="w-65px   text-left  font-bold text-12px">记录时间</div>
           <div class="w-205px   text-left break-words break-all text-12px">{{selectClipboard.time}}</div>
         </div>
         <div class="   flex item-start">

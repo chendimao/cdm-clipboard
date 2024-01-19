@@ -156,7 +156,7 @@
                   密码
                 </div>
                 <div>
-                  <a-input v-model:value="configData.webdavpass"  style="width: 180px;" />
+                  <a-input type="password" v-model:value="configData.webdavPass"  style="width: 180px;" />
                 </div>
               </div>
               <div class="flex items-center h-50px">
@@ -164,7 +164,7 @@
 
                 </div>
                 <div>
-                  <a-button class="w-180px">测试</a-button>
+                  <a-button class="w-180px" @click="handleTestWebdav">测试</a-button>
                 </div>
               </div>
 
@@ -361,14 +361,24 @@
                 </div>
                 <div>
                   <a-textarea :autoSize="true"   v-model:value="dataPath" :disabled="true"    style="width: 320px;" />
+
                 </div>
               </div>
-            <div class="flex items-center h-50px mt-20px">
+            <div class="flex items-center h-50px  ">
               <div class="mr-15px line-height-35px w-60px text-right">
 
               </div>
               <div class="w-100% text-right mr-30px">
-                <a-button type="primary" @click="changePath" >更换数据文件夹</a-button>
+                <a-button type="primary" @click="changePath" >更换文件夹</a-button>
+              </div>
+            </div>
+
+            <div class="flex items-center h-50px  ">
+              <div class="mr-15px line-height-35px w-80px text-right">
+                同步状态
+              </div>
+              <div class="w-100% text-right mr-30px">
+                <a-button type="primary" @click="changePath" >更换文件夹</a-button>
               </div>
             </div>
 
@@ -438,8 +448,9 @@ onMounted(() => {
   getDataPath();
 
   ipcRenderer.on('onDblKey',  (event, arg) =>{
-
+    console.log(arg);
     if (configData.value.isDoubKey == 1 && currentKey.value == 'b1') {
+
       configData.value['b1'] =  arg? arg[0].value : '';
     }
 
@@ -474,6 +485,8 @@ function handleSave() {
 
   })
 }
+
+
 
 
 function handleKey(ev, key) {
@@ -561,6 +574,34 @@ function changePath() {
 
 
   })
+
+}
+
+function handleTestWebdav() {
+  if (!configData.value.webdavUrl) {
+    message.info('请输入webdav地址');
+    return;
+  }
+
+  if (!configData.value.webdavUser) {
+    message.info('请输入webdav用户名');
+    return;
+  }
+  if (!configData.value.webdavPass) {
+    message.info('请输入webdav密码');
+    return;
+  }
+
+  ipcRenderer.invoke('getWebdavFileList', configData.value.webdavUrl, configData.value.webdavUser, configData.value.webdavPass).then(res => {
+   const r = JSON.parse(res);
+    if (!('?xml' in r)){
+      message.error('webdav连接失败，请检查webdav地址、用户名和密码');
+    } else {
+      console.log(r);
+      message.success('webdav连接成功');
+    }
+  });
+
 
 }
 

@@ -45,107 +45,114 @@
       </div>
     </div>
 
-    <div class=" w-100% h-530px p-8px flex justify-start">
+    <div class=" w-100% h-530px">
       <template v-if="list.length > 0">
-        <div class="w-280px mytable-scrollbar">
-          <DynamicScroller
-            class="scroller  h-480px "
-            :items="list"
-            :item-size="55"
-            key-field="hash"
-            :minItemSize="55"
-            :emitUpdate="false"
-            @update="updateRow"
-            ref="scrollView"
-            @scroll="handleScroll"
-            v-slot="{ item , index}"
-          >
-            <div :class="{'active': selectIndex == index}" :ref="(el) => itemRefs[index] = el"  @click="cellClickEvent(item, index)" class="pl-5px w-280px hover:bg-[#d5d5d8] border-1px border-solid border-[#f1f2f8] border-l-2px border-l-solid border-l-[#f1f2f8] border-r-2px border-r-solid border-r-[#f1f2f8]"  >
-              <div v-if="item.text" class="text-black text-truncate select-none w-100%   cursor-pointer  h-55px" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item )">
+        <div class=" flex justify-start h-460px">
+          <div class="w-280px ">
+            <div class=" mytable-scrollbar">
+              <DynamicScroller
+                class="scroller  h-460px  pl-5px "
+                :items="list"
+                :item-size="55"
+                key-field="hash"
+                :minItemSize="55"
+                :emitUpdate="false"
+                @update="updateRow"
+                ref="scrollView"
+                @scroll="handleScroll"
+                v-slot="{ item , index}"
+              >
+                <div :class="{'active': selectIndex == index}" :ref="(el) => itemRefs[index] = el"  @click="cellClickEvent(item, index)" class="pl-5px w-280px hover:bg-[#d5d5d8] border-1px border-solid border-[#f1f2f8] border-l-2px border-l-solid border-l-[#f1f2f8] border-r-2px border-r-solid border-r-[#f1f2f8]"  >
+                  <div v-if="item.text" class="text-black text-truncate select-none w-100%   cursor-pointer  h-55px" @click.ctrl="showDetail(item)" @dblclick="setCurrentClipboard(item )">
 
-                <div class=" w-260px  flex items-center ">
-                  <a-image
-                    width="28px"
-                    :src="'cdm-clipboard:///' + iconDir() + '/copy.png'"
-                    :fallback="'cdm-clipboard:///' + iconDir() + '/1.png'"
-                    :preview="false"
-                  />
-                  <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " v-html="item.innerHtml "   >
+                    <div class=" w-270px  flex items-center ">
+                      <a-image
+                        width="28px"
+                        :src="'cdm-clipboard:///' + iconDir() + '/copy.png'"
+                        :fallback="'cdm-clipboard:///' + iconDir() + '/1.png'"
+                        :preview="false"
+                      />
+                      <div class="text-16px ml-5px h-100%  w-220px  line-height-55px text-truncate " v-html="item.innerHtml "   >
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                  <div v-else-if="item.img" class="w-100% pt-5px  cursor-pointer select-none h-55px "  @click.ctrl.prevent="openFile(item.img)" @dblclick.prevent="setCurrentClipboard(item)">
+                    <!--              <img :src="icon" />-->
+                    <div class=" w-260px  flex items-center">
+
+                      <a-image
+                        width="28px"
+                        :src="`cdm-clipboard:///${iconDir()}/${item.img.substring(item.img.lastIndexOf('.') + 1)}.png`"
+                        :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
+                        :preview="false"
+                      />
+                      <div class="text-black text-bold ml-5px text-15px w-220px">
+                        <div class="text-truncate" v-html=" item.innerHtml " > </div>
+                        <a-tooltip :title="item.img" :mouseEnterDelay="1">
+                          <div class="text-[gray] text-12px text-truncate"  > {{item.img}}</div>
+                        </a-tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  <div  v-else-if="item.cache" class="w-100% pt-5px  cursor-pointer select-none h-55px "   @dblclick="setCurrentClipboard(item)">
+                    <div class=" w-260px  flex items-center">
+                      <a-image
+                        width="28px"
+                        :src="`cdm-clipboard:///${iconDir()}/${item.cache.split('??::')[0].substring(item.cache.split('??::')[0].lastIndexOf('.') + 1)}.png`"
+                        :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
+
+                        :preview="false"
+                      />
+                      <div class="text-black text-bold ml-5px text-15px w-220px" @click="selectFile = item.cache.split('??::')[0]">
+                        <div class="text-truncate"> <span v-html="item.innerHtml"></span><span v-if="item.cache.split('??::').length > 1">等{{item.cache.split('??::').length}}个文件</span></div>
+                        <a-tooltip :title="item.cache.replaceAll('??::', ', ')" :mouseEnterDelay="1">
+                          <div class="text-[gray] text-12px text-truncate">{{ item.cache.split('??::')[0] }}</div>
+                        </a-tooltip>
+                      </div>
+                    </div>
 
                   </div>
 
                 </div>
-
-              </div>
-              <div v-else-if="item.img" class="w-100% pt-5px  cursor-pointer select-none h-55px "  @click.ctrl.prevent="openFile(item.img)" @dblclick.prevent="setCurrentClipboard(item)">
-                <!--              <img :src="icon" />-->
-                <div class=" w-260px  flex items-center">
-
-                  <a-image
-                    width="28px"
-                    :src="`cdm-clipboard:///${iconDir()}/${item.img.substring(item.img.lastIndexOf('.') + 1)}.png`"
-                    :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
-                    :preview="false"
-                  />
-                  <div class="text-black text-bold ml-5px text-15px w-220px">
-                    <div class="text-truncate" v-html=" item.innerHtml " > </div>
-                    <a-tooltip :title="item.img" :mouseEnterDelay="1">
-                      <div class="text-[gray] text-12px text-truncate"  > {{item.img}}</div>
-                    </a-tooltip>
-                  </div>
-                </div>
-              </div>
-              <div  v-else-if="item.cache" class="w-100% pt-5px  cursor-pointer select-none h-55px "   @dblclick="setCurrentClipboard(item)">
-                <div class=" w-260px  flex items-center">
-                  <a-image
-                    width="28px"
-                    :src="`cdm-clipboard:///${iconDir()}/${item.cache.split('??::')[0].substring(item.cache.split('??::')[0].lastIndexOf('.') + 1)}.png`"
-                    :fallback="`cdm-clipboard:///${iconDir()}/null.png`"
-
-                    :preview="false"
-                  />
-                  <div class="text-black text-bold ml-5px text-15px w-220px" @click="selectFile = item.cache.split('??::')[0]">
-                    <div class="text-truncate"> <span v-html="item.innerHtml"></span><span v-if="item.cache.split('??::').length > 1">等{{item.cache.split('??::').length}}个文件</span></div>
-                    <a-tooltip :title="item.cache.replaceAll('??::', ', ')" :mouseEnterDelay="1">
-                      <div class="text-[gray] text-12px text-truncate">{{ item.cache.split('??::')[0] }}</div>
-                    </a-tooltip>
-                  </div>
-                </div>
-
-              </div>
-
+              </DynamicScroller>
             </div>
-          </DynamicScroller>
-        </div>
-
-        <div class="w-290px bg-[#f6f7fa] border-1px rd-5px ml-5px my-card  overflow-auto">
-          <div class="w-full  " v-if="selectClipboard">
-            <div v-if="selectClipboard.type == 'text'" class="h-260px  p-5 overflow-auto  " v-highlight   >
-              <div  v-html="brightenKeyword(hljs.highlightAuto(selectClipboard.text).value, escapeHtml(query))">
-              </div>
-            </div>
-
-            <div v-else-if="selectClipboard.type == 'img'"  >
-              <img-card :select-clipboard="selectClipboard"/>
-            </div>
-
-            <div v-else-if="selectClipboard.type == 'file'"  >
-              <file-card :select-clipboard="selectClipboard" v-model:selectFileIndex="selectFileIndex"/>
-            </div>
-
-            <menu-card  :select-clipboard="selectClipboard" :selectIndex="selectIndex" @setCurrentClipboard="setCurrentClipboard" @deleteData="deleteData" :selectFileIndex="selectFileIndex" />
 
           </div>
+          <div class="w-290px bg-[#f6f7fa] border-1px rd-5px ml-5px my-card   ">
+            <div class="w-full my-card  " v-if="selectClipboard">
+              <div v-if="selectClipboard.type == 'text'" class=" overflow-auto  "    >
+                <text-card  :select-clipboard="selectClipboard" :query="query"  />
+              </div>
+
+              <div v-else-if="selectClipboard.type == 'img'"  >
+                <img-card :select-clipboard="selectClipboard"/>
+              </div>
+
+              <div v-else-if="selectClipboard.type == 'file'"  >
+                <file-card :select-clipboard="selectClipboard" v-model:selectFileIndex="selectFileIndex"/>
+              </div>
+
+              <menu-card  :select-clipboard="selectClipboard" :selectIndex="selectIndex" @setCurrentClipboard="setCurrentClipboard" @deleteData="deleteData" :selectFileIndex="selectFileIndex" />
+
+            </div>
 
 
+          </div>
         </div>
-
+        <state-bar />
       </template>
       <div v-else class="w-100% h-100% flex justify-center items-center">
         <a-empty ></a-empty>
       </div>
 
+
     </div>
+
+
+
   </div>
 </template>
 
@@ -161,12 +168,16 @@ import * as dayjs from "dayjs";
 import imgCard from './component/imgCard.vue';
 import fileCard from './component/fileCard.vue';
 import menuCard from './component/menuCard.vue';
-import hljs from "highlight.js/lib/core";
+import textCard from './component/textCard.vue';
 
+
+import StateBar from "./component/stateBar.vue";
+import {escapeHtml} from "../../utils/";
 require('dayjs/locale/zh-cn');
 dayjs.locale('zh-cn');
 const relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime) // use plugin
+
 
 const { ipcRenderer } = window.electron
 const account = ref('')
@@ -174,6 +185,7 @@ const password = ref('')
 const app = require('@electron/remote').getGlobal('app');
 const iconDir = require('@electron/remote').getGlobal('iconDir');
 const pluginDir = require('@electron/remote').getGlobal('pluginDir');
+
 const router = useRouter()
 const xTable = ref()
 const list = ref([])
@@ -185,11 +197,16 @@ const itemRefs = ref([]);
 const scrollView = ref();
 const searchRef = ref();
 
+
+
 const currentClipboard = ref(); // 当前剪切板
 const selectClipboard = ref(); // 当前鼠标单击选项
 const selectIndex = ref(0);
 const selectFile = ref();
 const selectFileIndex = ref();
+
+const showBar = ref(false);
+
 
 const inputFocus = ref(false);
 
@@ -212,14 +229,13 @@ const fileList = computed(() => {
 })
 
 const query = ref('');
-const queryType = ref('');
 const limit = ref(20);
 const page =  ref(0);
 
-watch([query, queryType], (data) => {
+watch(query, (data) => {
   console.log(data);
   page.value = 0;
-  getData(data[0], data[1]);
+  getData(data);
 }, {immediate: true})
 
  const clickTimer = ref();
@@ -234,17 +250,7 @@ function updateRow(ev) {
 //   div.appendChild(text);
 //   return div.innerHTML.replace(new RegExp('&amp;', 'gi'), `&`);
 // }
-function escapeHtml(str) {
-  var temp = "";
-  if(str.length == 0) return "";
-  temp = str.replace(/&/g,"&amp;");
-  temp = temp.replace(/</g,"&lt;");
-  temp = temp.replace(/>/g,"&gt;");
-  temp = temp.replace(/\s/g,"&nbsp;");
-  temp = temp.replace(/\'/g,"&#39;");
-  temp = temp.replace(/\"/g,"&quot;");
-  return temp;
-}
+
 
 function htmlDecode (text){
                //1.首先动态创建一个容器标签元素，如DIV
@@ -285,6 +291,7 @@ onMounted( async() => {
         selectIndex.value = 0;
         selectClipboard.value = arg;
         currentClipboard.value = arg;
+        query.value = '';
       document.querySelector('.vue-recycle-scroller').scrollTop = 0;
     }
   })
@@ -348,7 +355,7 @@ function getData(keyword = undefined, type = undefined) {
   let params = {syncStatus: 0}
 
   ipcRenderer.invoke('getClipboardList', params, keyword??undefined, type, limit.value, page.value * limit.value).then((res) => {
-    console.log(res, 259);
+
     if (page.value === 0 ) {
       list.value = [];
     }
@@ -361,7 +368,7 @@ function getData(keyword = undefined, type = undefined) {
       selectClipboard.value = res[0];
       selectIndex.value = 0;
     }
-    console.log(list.value.length);
+    console.log(list.value);
 
 
   })
@@ -464,6 +471,7 @@ const handleKeyDown = (event) => {
         selectClipboard.value = list.value[selectIndex.value];
         itemRefs.value[selectIndex.value].scrollIntoView(false );
       }
+      console.log(selectIndex.value);
 
 
 
@@ -526,13 +534,26 @@ function cellClickEvent(item, index) {
 
 }
 
-//搜索高亮
-function brightenKeyword(val, keyword) {
-  if(!query.value) return val;
-  // 匹配关键字正则
-  return val.replace(new RegExp(keyword, 'gi'), `<span class="text-[red] bg-[#DCF89D]">${keyword}</span>`);
+
+
+
+
+
+// 获取bar配置
+const getBarConfig = () => {
+  ipcRenderer.invoke('handleGetStore', 'showBar').then((res) => {
+    showBar.value = res;
+  })
 }
 
+
+
+function brightenKeyword(val, keyword) {
+  if(!keyword) return val;
+  // 匹配关键字正则
+
+  return val.replace(new RegExp(keyword, 'gi'), `<span class="text-[red] bg-[#DCF89D]">${keyword}</span>`);
+}
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyDown);

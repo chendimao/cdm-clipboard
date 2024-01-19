@@ -21,6 +21,7 @@ import {getConfig, updateDBId} from "../../utils/database";
 
 import rubick from 'rubick-native';
 import dayjs from "dayjs";
+import {getWebdavFileList, uploadWebdav} from "./webdav";
 const Store = require('electron-store');
 let dblTimer = [];
 const store = new Store();
@@ -175,6 +176,20 @@ export function handleEvent() {
     return store.get('dataPath');
   });
 
+  // 获取webdav目录列表
+  ipcMain.handle('getWebdavFileList', getWebdavFileList);
+
+  // 上传文件到webdav
+  ipcMain.handle('uploadWebdav', uploadWebdav);
+
+  // 打开设置页面
+  ipcMain.handle('handleSetting', handleSetting);
+
+  // 获取store
+  ipcMain.handle('handleGetStore', handleGetStore);
+  // 设置store
+  ipcMain.handle('handleSetStore', handleSetStore);
+
 }
 
 // 统一管理通用全局变量
@@ -198,6 +213,7 @@ export function handleGlobal() {
   global.dbDir = (path = '') => join(global.dataDir()  + '\\db\\', path);
   global.pluginDir = (path = '') => join(global.dataDir() +  '\\plugins\\', path);
   global.fileIsExists = (path) => existsSync(path);
+  global.getTextIsize = (text) => Buffer.byteLength(text, 'utf8');
   console.log(global.dataDir(), 192);
 
 }
@@ -212,13 +228,11 @@ export function handlePositionAndShortcut() {
       //   console.log(ev);
       //
       // }
-      // if (ev.event.type == 'ButtonRelease' && ev.event.value == 'Left'){
-      //   console.log(ev);
-      // }
+
 
 
       // 监听双击激活程序
-      if (ev.event.type === 'KeyRelease' && ev.event.value  === global.Config.b1 && global.Config?.isDoubKey === 1 ) {
+      if (ev.event.type === 'KeyRelease'  && global.Config?.isDoubKey === 1 ) {
 
         if (dblTimer.length == 0) {
           dblTimer.push({time:dayjs().valueOf(), value: ev.event.value})
@@ -231,18 +245,23 @@ export function handlePositionAndShortcut() {
         }
 
         if ( dblTimer.length == 2 &&  dblTimer[1].time - dblTimer[0].time < 1000 ) {
-          console.log(dblTimer, 220);
+         // console.log(dblTimer, 220);
           global.settingWindow ? global.settingWindow.webContents.send('onDblKey', dblTimer) : '';
 
+
+          if (ev.event.value  === global.Config.b1) {
             //判断是否最小化
-              if (!global.mainWindow.isMinimized()) {
-                global.mainWindow.minimize();
+            if (!global.mainWindow.isMinimized()) {
+              global.mainWindow.minimize();
               // BrowserWindow.fromId(global.mainId).hide();
             } else {
-                global.mainWindow.restore();
-                global.mainWindow.focus();
+              global.mainWindow.restore();
+              global.mainWindow.focus();
 
             }
+          }
+
+
             dblTimer = [];
 
         }
@@ -301,7 +320,7 @@ export function handleMenuShortcut(ev, len = 0) {
     // 数据库字段从b2开始
 
     globalShortcut.register( global.Config['b' + (i+2)], () => {
-      console.log(i, 291);
+      //console.log(i, 291);
       BrowserWindow.fromId(global.mainId).webContents.send('setMenuShortcut', i);
     })
   }
@@ -468,6 +487,19 @@ export function handleRestart() {
     // 退出
     global.app.relaunch();
     global.app.quit();
+
+}
+
+export function handleGetStore(ev, key) {
+  if (store.has(key)) {
+    return store.get(key);
+  }
+  return false;
+}
+
+export function handleSetStore(ev, key, value) {
+
+    return store.set(key, value);
 
 }
 

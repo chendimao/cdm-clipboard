@@ -47,6 +47,10 @@ const CreateSettingWindow = ({
   globalShortcut.register('CommandOrControl+alt+shift+k', () => {
     settingWindow.webContents.openDevTools()
   })
+  console.log(settingWindow, 53);
+  settingWindow.webContents.openDevTools()
+
+
   // 设置窗口名称
   settingWindow.setTitle(data.windowTitle || '设置')
   // 这里将当前窗口的唯一id，存入全局变量，以容易区分多个独立窗口

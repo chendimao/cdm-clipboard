@@ -16,3 +16,23 @@ export function byteConvert(bytes) {
   }
   return bytes + ' ' + symbols[i];
 }
+
+
+//搜索高亮
+export function brightenKeyword(val, keyword) {
+  if(!keyword) return val;
+  // 匹配关键字正则
+  return val.replace(new RegExp(keyword, 'gi'), `<span class="text-[red] bg-[#DCF89D]">${keyword}</span>`);
+}
+
+export function escapeHtml(str) {
+  var temp = "";
+  if(str.length == 0) return "";
+  temp = str.replace(/&/g,"&amp;");
+  temp = temp.replace(/</g,"&lt;");
+  temp = temp.replace(/>/g,"&gt;");
+  temp = temp.replace(/\s/g,"&nbsp;");
+  temp = temp.replace(/\'/g,"&#39;");
+  temp = temp.replace(/\"/g,"&quot;");
+  return temp;
+}

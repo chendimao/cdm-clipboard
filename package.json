@@ -31,14 +31,14 @@
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-log": "^5.0.1",
+    "electron-store": "^8.1.0",
     "electron-updater": "^6.1.1",
     "node-machine-id": "^1.1.12",
     "rubick-native": "^0.0.16-beta",
     "rubick-native-addon": "^0.0.16-beta",
     "rubick-native-addon-win32-x64-msvc": "^0.0.15-beta",
     "vue-virtual-scroller": "^2.0.0-beta.8",
-    "vue3-menus": "^1.1.2",
-    "electron-store": "^8.1.0"
+    "vue3-menus": "^1.1.2"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.1",
@@ -70,6 +70,7 @@
     "electron-vite": "^1.0.29",
     "eslint": "^8.47.0",
     "eslint-plugin-vue": "^9.17.0",
+    "fast-xml-parser": "^4.3.3",
     "highlight.js": "^11.9.0",
     "less": "^4.2.0",
     "node-global-key-listener": "^0.1.1",
@@ -89,7 +90,9 @@
     "vue-router": "^4.2.5",
     "vue-tsc": "^1.8.8",
     "vxe-table": "^4.5.14",
-    "xe-utils": "^3.5.14"
+    "xe-utils": "^3.5.14",
+    "xml-js": "^1.6.11",
+    "xml2js": "^0.6.2"
   },
   "volta": {
     "node": "18.19.0",

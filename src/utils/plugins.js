@@ -7,6 +7,10 @@ import {serviceAxios} from "../api/http";
 import {createDir, getDownLoadUrl} from "./index";
 import path from "path";
 import fs from "fs";
+import xml2js from 'xml2js';
+
+const service = new serviceAxios('https://gitee.com', true);
+
 export    function downloadQuickLook() {
   if(process.platform !== 'win32') return;
   if (fs.existsSync(global.pluginDir('quickLook'))){
@@ -14,13 +18,11 @@ export    function downloadQuickLook() {
   }
 
 
-   serviceAxios({
-    url: 'https://gitee.com/dimao/cdm-clipboard/releases/download/cdm_clipboard/quickLook.zip',
+  service.get('/dimao/cdm-clipboard/releases/download/cdm_clipboard/quickLook.zip', {
     params: {},
-    methods: 'get',
     responseType: 'arraybuffer',
     onDownloadProgress: (ev) => {
-      //console.log(ev, 15);
+      console.log(ev, 15);
     }
   }).then(res => {
     // console.log(res, 20);
@@ -44,13 +46,11 @@ export  function downloadIcon() {
     return;
   }
 
-   serviceAxios({
-    url: 'https://gitee.com/dimao/cdm-clipboard/releases/download/cdm_clipboard/icon.zip',
+   service.get('/dimao/cdm-clipboard/releases/download/cdm_clipboard/icon.zip', {
     params: {},
-    methods: 'get',
     responseType: 'arraybuffer',
     onDownloadProgress: (ev) => {
-     // console.log(ev, 15);
+       console.log(ev, 54);
     }
   }).then(res => {
      //console.log(res, 47);
@@ -69,5 +69,8 @@ export  function downloadIcon() {
    })
 
 }
+
+
+
 
 
